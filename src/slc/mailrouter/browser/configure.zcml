@@ -11,4 +11,19 @@
         permission="zope2.View" 
         />
 
+    <browser:page
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="manage-mailrouter"
+        class=".views.FriendlyNameStorageView"
+        template="list.pt"
+        permission="cmf.ManagePortal"
+        />
+
+    <browser:page
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="add-mailroute"
+        class=".views.FriendlyNameAddView"
+        permission="cmf.ManagePortal"
+        />
+
 </configure>

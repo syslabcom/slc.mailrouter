@@ -1,0 +1,38 @@
+<html metal:use-macro="context/prefs_main_template/macros/master"
+      i18n:domain="slc.mailrouter" >
+<body>
+    <div metal:fill-slot="prefs_configlet_main"
+         tal:define="dummy view/update;
+                     batch view/mappings">
+    <h1 i18n:translate="add_mailroute">Add Mail Route</h1>
+        <form method="post" action="@@add-mailroute"
+              style="display: inline">
+          <input type="submit" value="Add" class="standalone add">
+        </form>
+        <form tal:condition="batch"
+              method="post"
+              tal:attributes="action string:${context/absolute_url}/@@manage-mailrouter">
+        <table class="listing">
+            <tr>
+                <th>Friendly name</th>
+                <th>Target</th>
+                <th>Delete</th>
+            </tr>
+            <tr tal:repeat="mapping batch">
+                <td tal:content="python: mapping[0]">name</td>
+                <td>
+                    <a tal:attributes="href python:'%s/resolveuid/%s' % (context.absolute_url(), mapping[1])"
+                       tal:content="python: mapping[1]">target</a>
+                </td>
+                <td>
+                    <input type="checkbox" name="remove:list"
+                           tal:attributes="value python:mapping[1]" />
+                </td>
+            </tr>
+        </table>
+        <input type="submit" class="context" value="Remove routes" />
+        <div metal:use-macro="context/batch_macros/macros/navigation"></div>
+        </form>
+    </div>
+</body>
+</html>
