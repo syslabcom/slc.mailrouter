@@ -33,5 +33,8 @@ class FriendlyNameStorage(Persistent):
         """ Look up name, map uid to an object and return it. """
         return self._forward.get(name, _marker)
 
+    def __getitem__(self, key):
+        return self._forward.items()[key]
+
     def __len__(self):
         return len(self._forward)

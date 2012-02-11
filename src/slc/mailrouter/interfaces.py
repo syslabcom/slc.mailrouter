@@ -19,5 +19,8 @@ class IFriendlyNameStorage(Interface):
     def get(name):
         """ Look up name, return the uid. """
 
+    def __getitem__(key):
+        """ Return item corresponding to key. """
+
     def __len__():
         """ Return the number of items in storage. """
