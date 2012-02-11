@@ -4,4 +4,11 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="slc.mailrouter">
 
+    <browser:page
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="mailrouter-inject"
+        class=".views.InjectionView"
+        permission="zope2.View" 
+        />
+
 </configure>
