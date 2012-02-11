@@ -1,0 +1,18 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:five="http://namespaces.zope.org/five"
+    i18n_domain="slc.mailrouter">
+
+    <genericsetup:registerProfile
+        name="default"
+        title="slc.mailrouter"
+        directory="profiles/default"
+        description="Mail Router Default Setup"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+    <include package=".browser" />
+
+</configure>
