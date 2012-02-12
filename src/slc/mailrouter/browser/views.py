@@ -17,10 +17,16 @@ class InjectionView(BrowserView):
         routers = getAllUtilitiesRegisteredFor(IMailRouter)
         routers.sort(lambda x,y: cmp(x.priority(), y.priority()))
         for router in routers:
-            if router(aq_inner(self.context), msg):
-                return 'OK'
+            try:
+                if router(aq_inner(self.context), msg):
+                    return 'OK: Message accepted'
+            except Exception, e:
+                # If there is an exception, fail
+                self.request.response.setStatus(500)
+                return 'Fail: %s' % e.args[0]
 
-        return 'FAIL'
+        self.request.response.setStatus(404)
+        return 'FAIL: No router accepted the message'
 
 class FriendlyNameStorageView(BrowserView):
     def update(self):
