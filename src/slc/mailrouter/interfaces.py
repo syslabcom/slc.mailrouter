@@ -24,3 +24,15 @@ class IFriendlyNameStorage(Interface):
 
     def __len__():
         """ Return the number of items in storage. """
+
+class IMailRouter(Interface):
+    """ Utilities that act as mail routers implement this interface. """
+
+    def __call__(self, site, message):
+        """ Calling the utility handles ``message``, return True if it was
+            handled, false otherwise. ``site`` is the plone site.
+        """
+
+    def priority(self):
+        """ Return priority to determine the order in which routers are called.
+        """

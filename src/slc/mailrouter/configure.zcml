@@ -13,6 +13,11 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
+    <utility
+        name="mail"
+        provides=".interfaces.IMailRouter"
+        factory=".utils.MailToFolderRouter" />
+
     <include package=".browser" />
 
 </configure>
