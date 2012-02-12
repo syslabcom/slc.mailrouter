@@ -4,8 +4,13 @@ from zope.component import queryUtility, getAllUtilitiesRegisteredFor
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFPlone.PloneBatch import Batch
+from Products.statusmessages.interfaces import IStatusMessage
+from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.utils import _checkPermission
+from Products.CMFCore.permissions import AddPortalContent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter import MessageFactory as _
 
 class InjectionView(BrowserView):
     def __call__(self):
@@ -51,21 +56,30 @@ class FriendlyNameAddView(BrowserView):
         storage = queryUtility(IFriendlyNameStorage)
         if self.request.get('form.submitted', None) is not None:
             name = self.request.get('name', '')
-            target = self.request.get('target', '')
+            target = self.context.UID()
             if not name:
                 errors.update(
                     {'name': _(u'You must provide a friendly name.')})
-            if not target:
-                errors.update({'target': _(u'You must provide a target.')})
             if not errors:
                 if storage.get(name):
                     errors.update(
                         {'name': _(u'This name is already in use.')})
                 else:
+                    storage.remove(target) # No effect if target isn't mapped
                     storage.add(target, name)
-                    self.request.response.redirect(
-                        '%s/@@manage-mailrouter' % self.context.absolute_url())
-                    return ''
+                    IStatusMessage(self.request).add(_(u"Mail route enabled."))
 
         self.request['errors'] = errors
         return self.addtemplate()
+
+    def friendlyname(self):
+        storage = queryUtility(IFriendlyNameStorage)
+        return storage.lookup(self.context.UID())
+
+    def displayMailTab(self):
+        # Cannot mail into the portal root
+        if self.context.restrictedTraverse(
+            '@@plone_context_state').is_portal_root():
+            return False
+        return IFolderish.providedBy(self.context) and \
+            _checkPermission(AddPortalContent, self.context)

@@ -20,7 +20,7 @@
         />
 
     <browser:page
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        for="Products.CMFCore.interfaces.IFolderish"
         name="add-mailroute"
         class=".views.FriendlyNameAddView"
         permission="cmf.ManagePortal"

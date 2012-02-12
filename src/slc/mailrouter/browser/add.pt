@@ -1,8 +1,8 @@
-<html metal:use-macro="context/prefs_main_template/macros/master"
+<html metal:use-macro="here/main_template/macros/master"
       i18n:domain="slc.mailrouter" >
 <body>
-    <div metal:fill-slot="prefs_configlet_main">
-    <h1 i18n:translate="add_mailroute">Add Mail Route</h1>
+    <div metal:fill-slot="main">
+    <h1 i18n:translate="add_mailroute">Configure Mail Route</h1>
 
     <form action="@@add-mailroute" method="post"
           tal:define="errors python:request.get('errors', {})">
@@ -18,25 +18,11 @@
             <div class="fieldErrorBox"
                         tal:content="error">Error</div>
             <input type="text" name="name" size="8"
-                   tal:attributes="value request/name|nothing" />
-        </div>
-        <div class="field"
-             tal:define="error errors/target|nothing"
-             tal:attributes="class python:error and 'field error' or 'field'">
-            <label for="target">Target</label>
-            <span class="fieldRequired" title="Required"
-                  i18n:attributes="title title_required;"
-                  i18n:translate="label_required">
-                (Required)
-            </span>
-            <div class="fieldErrorBox"
-                        tal:content="error">Error</div>
-            <input type="text" name="target" size="30"
-                   tal:attributes="value request/target|nothing" />
+                   tal:attributes="value request/name|view/friendlyname|nothing" />
         </div>
         <input type="hidden" name="form.submitted" value="1" />
         <input type="submit" class="context" name="form.button.Save"
-               value="Add" />
+               value="Save" />
     </form>
     </div>
 </body>

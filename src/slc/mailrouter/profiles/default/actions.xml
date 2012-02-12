@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<object name="portal_actions" meta_type="Plone Actions Tool"
+        xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+  <object name="object" meta_type="CMF Action Category">
+    <object name="mailroute" meta_type="CMF Action" i18n:domain="plone">
+      <property name="title" i18n:translate="">Mail</property>
+      <property
+          name="url_expr">string:${object_url}/@@add-mailroute</property>
+      <property name="available_expr">context/@@add-mailroute/displayMailTab|nothing</property>
+      <property name="visible">True</property>
+    </object>
+  </object>
+</object>
