@@ -19,6 +19,9 @@ class IFriendlyNameStorage(Interface):
     def get(name):
         """ Look up name, return the uid. """
 
+    def lookup(uid):
+        """ Look up uid, return name. """
+
     def __getitem__(key):
         """ Return item corresponding to key. """
 
