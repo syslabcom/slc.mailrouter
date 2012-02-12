@@ -1,6 +1,8 @@
 import re
 import email
 from datetime import datetime
+from AccessControl.SecurityManagement import newSecurityManager, \
+    noSecurityManager
 from zope.component import queryUtility
 from zope.interface import implements
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
@@ -16,8 +18,9 @@ class MailToFolderRouter(object):
 
     def __call__(self, site, msg):
         sender = msg.get('From')
-        local_part = msg.get('To').split('@')[0]
-        local_part = email.Utils.parseaddr(local_part)[1]
+        sender = email.Utils.parseaddr(sender)[1]
+        local_part = email.Utils.parseaddr(msg.get('To'))[1]
+        local_part = local_part.split('@')[0]
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
 
@@ -33,6 +36,7 @@ class MailToFolderRouter(object):
         brains = uidcat(UID=uid)
         if not brains:
             raise ValueError("No such UID")
+            return False
 
         context = brains[0].getObject()
         if not IFolderish.providedBy(context):
@@ -40,6 +44,19 @@ class MailToFolderRouter(object):
 
         idnormalizer = queryUtility(IFileNameNormalizer)
         registry = getToolByName(site, 'content_type_registry')
+
+        result = False
+
+        # Drop privileges to the right user
+        pm = getToolByName(site, 'portal_membership')
+        try:
+            user_id = pm.searchMembers('email', sender)[0]['username']
+        except IndexError:
+            raise ValueError("Sender is not a member")
+
+        acl_users = getToolByName(site, 'acl_users')
+        user = acl_users.getUser(user_id)
+        newSecurityManager(None, user.__of__(acl_users))
 
         # Extract the various parts
         for part in msg.walk():
@@ -71,8 +88,10 @@ class MailToFolderRouter(object):
             obj.getPrimaryField().getMutator(obj)(payload)
             obj.setTitle(file_name)
             obj.reindexObject(idxs='Title')
-            return True
-        return False
+            result = True
+
+        noSecurityManager()
+        return result
 
     def priority(self):
         return 50
