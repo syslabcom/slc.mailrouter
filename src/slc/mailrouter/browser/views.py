@@ -1,9 +1,10 @@
 import re
 import email
+from datetime import datetime
 from zope.component import queryUtility
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from plone.i18n.normalizer.interfaces import IIDNormalizer
+from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFPlone.PloneBatch import Batch
@@ -38,7 +39,7 @@ class InjectionView(BrowserView):
         if not IFolderish.providedBy(context):
             raise ValueError("Target is not a folder")
 
-        idnormalizer = queryUtility(IIDNormalizer)
+        idnormalizer = queryUtility(IFileNameNormalizer)
         registry = getToolByName(self.context, 'content_type_registry')
 
         # Extract the various parts
@@ -59,6 +60,12 @@ class InjectionView(BrowserView):
 
             # Normalise file_name into a safe id
             name = idnormalizer.normalize(file_name)
+
+            # Check that the name is safe to use, else add a date to it
+            if name in context.objectIds():
+                parts = name.split('.')
+                parts[0] += datetime.now().strftime('-%Y-%m-%d-%H-%M-%S')
+                name = '.'.join(parts)
 
             context.invokeFactory(type_name, name)
             obj = context._getOb(name)
