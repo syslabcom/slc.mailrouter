@@ -31,6 +31,11 @@ class MailToFolderRouter(object):
         uid = storage.get(local_part, None)
         if uid is None and UIDRE.match(local_part) is not None:
             uid = local_part
+
+        if uid is None:
+            # local_part is not a uid and is not mapped onto a folder,
+            # this is not something we can handle.
+            return False
         
         uidcat = getToolByName(site, 'uid_catalog')
         brains = uidcat(UID=uid)
