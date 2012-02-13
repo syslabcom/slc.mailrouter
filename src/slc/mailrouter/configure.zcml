@@ -18,6 +18,11 @@
         provides=".interfaces.IMailRouter"
         factory=".utils.MailToFolderRouter" />
 
+    <utility
+        name="groupmail"
+        provides=".interfaces.IMailRouter"
+        factory=".utils.MailToGroupRouter" />
+
     <include package=".browser" />
 
 </configure>

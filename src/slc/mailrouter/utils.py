@@ -100,3 +100,38 @@ class MailToFolderRouter(object):
 
     def priority(self):
         return 50
+
+class MailToGroupRouter(object):
+    implements(IMailRouter)
+
+    def __call__(self, site, msg):
+        sender = msg.get('From')
+        sender = email.Utils.parseaddr(sender)[1]
+        local_part = email.Utils.parseaddr(msg.get('To'))[1]
+        local_part = local_part.split('@')[0]
+
+        assert len(local_part) <= 50, "local_part must have a reasonable length"
+
+        groups_tool = getToolByName(site, 'portal_groups')
+        pat = re.compile(local_part, re.I)
+        candidates = map(lambda g: pat.match(g), groups_tool.getGroupIds())
+        candidates = filter(lambda g: g is not None, candidates)
+        if not candidates:
+            # local_part not a group, we're not handlig this msg
+            return False
+        if len(candidates) > 1:
+            raise ValueError('Group name is not unique')
+
+        group = groups_tool.getGroupById(candidates[0].group())
+        members = group.getGroupMembers()
+        
+        bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
+        msg.add_header('BCC', bcc)
+            
+        for mmbr in members:
+            site.MailHost.send(msg, mto=mmbr.getProperty('email'))
+
+        return True
+
+    def priority(self):
+        return 40
