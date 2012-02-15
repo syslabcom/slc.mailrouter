@@ -8,7 +8,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import _checkPermission
 from Products.CMFCore.permissions import AddPortalContent
-from slc.mailrouter.interfaces import IFriendlyNameStorage
+from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter import MessageFactory as _
 
@@ -38,12 +38,21 @@ class FriendlyNameStorageView(BrowserView):
         """ Called from the template, it deletes any mappings
             specified on the request. """
         remove = self.request.get('remove', ())
-        storage = queryUtility(IFriendlyNameStorage)
+        storages = [queryUtility(IFriendlyNameStorage),
+                    queryUtility(IGroupAliasStorage),
+                   ]
         for item in remove:
-            storage.remove(item)
+            for storage in storages:
+                storage.remove(item)
 
-    def mappings(self):
+    def folder_mappings(self):
         storage = queryUtility(IFriendlyNameStorage)
+        b_size = int(self.request.get('b_size', 50))
+        b_start = int(self.request.get('b_start', 0))
+        return Batch(storage, b_size, b_start)
+
+    def group_mappings(self):
+        storage = queryUtility(IGroupAliasStorage)
         b_size = int(self.request.get('b_size', 50))
         b_start = int(self.request.get('b_start', 0))
         return Batch(storage, b_size, b_start)

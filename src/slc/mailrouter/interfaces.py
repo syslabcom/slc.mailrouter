@@ -6,9 +6,8 @@ class IMailRouterLayer(Interface):
     """Marker Interface used by as BrowserLayer
     """
 
-class IFriendlyNameStorage(Interface):
-    """ A place to store the mapping of friendly names to uids, allowing
-        a user to email friendlyname@ourdomain instead of uid@ourdomain. """
+class IMappingStorage(Interface):
+    """ Stores mappings from names to targets. """
 
     def add(uid, name):
         """ Map name -> uid. """
@@ -27,6 +26,13 @@ class IFriendlyNameStorage(Interface):
 
     def __len__():
         """ Return the number of items in storage. """
+
+class IFriendlyNameStorage(IMappingStorage):
+    """ A place to store the mapping of friendly names to uids, allowing
+        a user to email friendlyname@ourdomain instead of uid@ourdomain. """
+
+class IGroupAliasStorage(IMappingStorage):
+    """ Stores aliases for groups for use by mail routers """
 
 class IMailRouter(Interface):
     """ Utilities that act as mail routers implement this interface. """

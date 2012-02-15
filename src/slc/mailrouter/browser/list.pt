@@ -2,9 +2,10 @@
       i18n:domain="slc.mailrouter" >
 <body>
     <div metal:fill-slot="prefs_configlet_main"
-         tal:define="dummy view/update;
-                     batch view/mappings">
-        <h1 i18n:translate="list_mailroutes">Mail Routes</h1>
+         tal:define="dummy view/update">
+      <h1 i18n:translate="list_mailroutes">Mail Routes</h1>
+      <div tal:define="batch view/folder_mappings">
+        <h2 i18n:translate="list_mailroutes_folders">Folder Friendly Names</h2>
         <form tal:condition="batch"
               method="post"
               tal:attributes="action string:${context/absolute_url}/@@manage-mailrouter">
@@ -30,6 +31,36 @@
         <div metal:use-macro="context/batch_macros/macros/navigation"></div>
         </form>
         <p tal:condition="not:batch">No routes configured</p>
+      </div>
+
+      <div tal:define="batch view/group_mappings">
+        <h2 i18n:translate="list_mailroutes_groups">Group Aliases</h2>
+        <form tal:condition="batch"
+              method="post"
+              tal:attributes="action string:${context/absolute_url}/@@manage-mailrouter">
+        <table class="listing">
+            <tr>
+                <th>Alias</th>
+                <th>Target</th>
+                <th>Delete</th>
+            </tr>
+            <tr tal:repeat="mapping batch">
+                <td tal:content="python: mapping[0]">name</td>
+                <td>
+                    <a tal:attributes="href python:'%s/@@usergroup-groupmembership?groupname=%s' % (context.absolute_url(), mapping[1])"
+                       tal:content="python: mapping[1]">target</a>
+                </td>
+                <td>
+                    <input type="checkbox" name="remove:list"
+                           tal:attributes="value python:mapping[1]" />
+                </td>
+            </tr>
+        </table>
+        <input type="submit" class="context" value="Remove routes" />
+        <div metal:use-macro="context/batch_macros/macros/navigation"></div>
+        </form>
+        <p tal:condition="not:batch">No routes configured</p>
+      </div>
     </div>
 </body>
 </html>

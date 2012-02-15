@@ -8,7 +8,7 @@ from zope.interface import implements
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
-from slc.mailrouter.interfaces import IFriendlyNameStorage
+from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
 from slc.mailrouter.interfaces import IMailRouter
 
 UIDRE = re.compile('^[0-9a-f-]+$')
@@ -112,17 +112,41 @@ class MailToGroupRouter(object):
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
 
+        # Look up the name
+        storage = queryUtility(IGroupAliasStorage)
+        group_name = storage.get(local_part, None)
+        if not group_name:
+            group_name = local_part
+
+        # Find the group
         groups_tool = getToolByName(site, 'portal_groups')
-        pat = re.compile(local_part, re.I)
+        pat = re.compile(group_name, re.I) # ignore case
         candidates = map(lambda g: pat.match(g), groups_tool.getGroupIds())
         candidates = filter(lambda g: g is not None, candidates)
         if not candidates:
-            # local_part not a group, we're not handlig this msg
-            return False
+            if not local_part == group_name:
+                # local_part is an alias, but the group that it points to does not exist. Something is wrong
+                raise ValueError('Name "%s" is an alias, but the referenced group "%s" does not exist' % (local_part, group_name))
+            else:
+                # local_part not a group, we're not handlig this msg
+                return False
         if len(candidates) > 1:
-            raise ValueError('Group name is not unique')
+            raise ValueError('Group name "%s" is not unique' % group_name)
 
         group = groups_tool.getGroupById(candidates[0].group())
+
+        # Drop privileges to the right user
+        pm = getToolByName(site, 'portal_membership')
+        try:
+            user_id = pm.searchMembers('email', sender)[0]['username']
+        except IndexError:
+            raise ValueError("Sender is not a member")
+
+        acl_users = getToolByName(site, 'acl_users')
+        user = acl_users.getUser(user_id)
+        newSecurityManager(None, user.__of__(acl_users))
+
+        # get members and send messages
         members = group.getGroupMembers()
         
         bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
