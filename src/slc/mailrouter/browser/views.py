@@ -8,6 +8,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import _checkPermission
 from Products.CMFCore.permissions import AddPortalContent
+from plone.uuid.interfaces import IUUID
 from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter import MessageFactory as _
@@ -65,7 +66,7 @@ class FriendlyNameAddView(BrowserView):
         storage = queryUtility(IFriendlyNameStorage)
         if self.request.get('form.submitted', None) is not None:
             name = self.request.get('name', '')
-            target = self.context.UID()
+            target = IUUID(self.context)
             if not name:
                 errors.update(
                     {'name': _(u'You must provide a friendly name.')})
@@ -83,7 +84,7 @@ class FriendlyNameAddView(BrowserView):
 
     def friendlyname(self):
         storage = queryUtility(IFriendlyNameStorage)
-        return storage.lookup(self.context.UID())
+        return storage.lookup(IUUID(self.context))
 
     def displayMailTab(self):
         # Cannot mail into the portal root
