@@ -114,26 +114,29 @@ class MailToGroupRouter(object):
 
         # Look up the name
         storage = queryUtility(IGroupAliasStorage)
-        group_name = storage.get(local_part, None)
+        group_name = storage.lookup(local_part, None)
         if not group_name:
             group_name = local_part
 
         # Find the group
         groups_tool = getToolByName(site, 'portal_groups')
-        pat = re.compile(group_name, re.I) # ignore case
-        candidates = map(lambda g: pat.match(g), groups_tool.getGroupIds())
-        candidates = filter(lambda g: g is not None, candidates)
-        if not candidates:
+        group = groups_tool.getGroupById(group_name)
+        if not group:
+            pat = re.compile(group_name, re.I) # ignore case
+            candidates = map(lambda g: pat.match(g), groups_tool.getGroupIds())
+            candidates = filter(lambda g: g is not None, candidates)
+            if len(candidates) > 1:
+                raise ValueError('Group name "%s" is not unique' % group_name)
+        if not group and not candidates:
             if not local_part == group_name:
                 # local_part is an alias, but the group that it points to does not exist. Something is wrong
                 raise ValueError('Name "%s" is an alias, but the referenced group "%s" does not exist' % (local_part, group_name))
             else:
                 # local_part not a group, we're not handlig this msg
                 return False
-        if len(candidates) > 1:
-            raise ValueError('Group name "%s" is not unique' % group_name)
 
-        group = groups_tool.getGroupById(candidates[0].group())
+        if not group and candidates:
+            group = groups_tool.getGroupById(candidates[0].group())
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
