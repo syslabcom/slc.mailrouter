@@ -59,7 +59,7 @@ class GroupAliasStorage(Persistent):
         """ Returns a dict that maps group ids to aliases """
         groups_tool = getToolByName(self, 'portal_groups')
         mapped_groups = filter(lambda g: g.getProperty('email'), map(lambda g: groups_tool.getGroupById(g), groups_tool.getGroupIds()))
-        items = [(g.getProperty('email'), g.getProperty('id')) for g in mapped_groups]
+        items = [(g.getProperty('id'), g.getProperty('email')) for g in mapped_groups]
         return dict(items)
 
     def add(self, groupid, alias):
@@ -83,22 +83,22 @@ class GroupAliasStorage(Persistent):
             return
         group.setProperties(dict(email=''))
         
+    def get(self, alias, _marker=None):
+        """ Look up alias, return groupid[s]. """
+        candidates = filter(lambda item: item[1].split('@')[0] == alias.split('@')[0], self._groupdict().items())
+        if not candidates:
+            return _marker
+        elif len(candidates) == 1:
+            return candidates[0][0]
+        else:
+            return map(lambda item: item[0], candidates)
+
     def lookup(self, groupid, _marker=None):
         """ Look up groupid, return alias. """
         return self._groupdict().get(groupid, _marker)
 
-    def get(self, alias, _marker=None):
-        """ Look up alias, return groupid(s). """
-        candidates = filter(lambda item: item[0].split('@')[0] == alias.split('@')[0], self._groupdict())
-        if not candidates:
-            return _marker
-        elif len(candidates) == 1:
-            return candidates[0][1]
-        else:
-            return map(lambda g: g[0], candidates)
-
     def __getitem__(self, key):
-        return self._groupdict().items()[key]
+        return [(x[1], x[0]) for x in self._groupdict().items()][key]
 
     def __len__(self):
         return len(self._groupdict())

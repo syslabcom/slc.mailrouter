@@ -114,7 +114,7 @@ class MailToGroupRouter(object):
 
         # Look up the name
         storage = queryUtility(IGroupAliasStorage)
-        group_name = storage.lookup(local_part, None)
+        group_name = storage.get(local_part, None)
         if not group_name:
             group_name = local_part
 
@@ -122,9 +122,8 @@ class MailToGroupRouter(object):
         groups_tool = getToolByName(site, 'portal_groups')
         group = groups_tool.getGroupById(group_name)
         if not group:
-            pat = re.compile(group_name, re.I) # ignore case
-            candidates = map(lambda g: pat.match(g), groups_tool.getGroupIds())
-            candidates = filter(lambda g: g is not None, candidates)
+            pat = re.compile('^%s$' % group_name, re.I) # ignore case
+            candidates = filter(lambda g: pat.match(g), groups_tool.getGroupIds())
             if len(candidates) > 1:
                 raise ValueError('Group name "%s" is not unique' % group_name)
         if not group and not candidates:
@@ -136,7 +135,7 @@ class MailToGroupRouter(object):
                 return False
 
         if not group and candidates:
-            group = groups_tool.getGroupById(candidates[0].group())
+            group = groups_tool.getGroupById(candidates[0])
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
