@@ -29,7 +29,10 @@ class InjectionView(BrowserView):
             except Exception, e:
                 # If there is an exception, fail
                 self.request.response.setStatus(500)
-                return 'Fail: %s' % e.args[0]
+                try:
+                    return 'Fail: %s' % e.args[0]
+                except IndexError:
+                    return 'Fail: %s' % str(e)
 
         self.request.response.setStatus(404)
         return 'FAIL: No router accepted the message'
