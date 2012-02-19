@@ -30,6 +30,9 @@ setup(
     entry_points="""
         [z3c.autoinclude.plugin]
         target = plone
+
+        [console_scripts]
+        smtp2zope = slc.mailrouter.scripts.smtp2zope:main
     """,
     setup_requires=["PasteScript"],
     paster_plugins = ["ZopeSkel"],
