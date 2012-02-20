@@ -5,8 +5,5 @@
   <utility
      interface="slc.mailrouter.interfaces.IFriendlyNameStorage"
      factory="slc.mailrouter.storage.FriendlyNameStorage" />
-  <utility
-     interface="slc.mailrouter.interfaces.IGroupAliasStorage"
-     factory="slc.mailrouter.storage.GroupAliasStorage" />
  </utilities>
 </componentregistry>

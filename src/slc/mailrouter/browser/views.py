@@ -9,7 +9,7 @@ from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import _checkPermission
 from Products.CMFCore.permissions import AddPortalContent
 from plone.uuid.interfaces import IUUID
-from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
+from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter import MessageFactory as _
 
@@ -29,7 +29,7 @@ class InjectionView(BrowserView):
             except Exception, e:
                 # If there is an exception, fail
                 self.request.response.setStatus(500)
-                return 'Fail: %s' % e.args[0]
+                return 'Fail: %s' % ','.join(e.args)
 
         self.request.response.setStatus(404)
         return 'FAIL: No router accepted the message'
@@ -48,12 +48,6 @@ class FriendlyNameStorageView(BrowserView):
 
     def folder_mappings(self):
         storage = queryUtility(IFriendlyNameStorage)
-        b_size = int(self.request.get('b_size', 50))
-        b_start = int(self.request.get('b_start', 0))
-        return Batch(storage, b_size, b_start)
-
-    def group_mappings(self):
-        storage = queryUtility(IGroupAliasStorage)
         b_size = int(self.request.get('b_size', 50))
         b_start = int(self.request.get('b_start', 0))
         return Batch(storage, b_size, b_start)

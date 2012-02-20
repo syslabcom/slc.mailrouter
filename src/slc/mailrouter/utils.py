@@ -8,7 +8,7 @@ from zope.interface import implements
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
-from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
+from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 
 UIDRE = re.compile('^[0-9a-f-]+$')
@@ -104,6 +104,22 @@ class MailToFolderRouter(object):
 class MailToGroupRouter(object):
     implements(IMailRouter)
 
+    def _findGroup(self, site, local_part):
+        groups_tool = getToolByName(site, 'portal_groups')
+        group = groups_tool.getGroupById(local_part)
+        if not group:
+            pat = re.compile('^%s$' % local_part, re.I) # ignore case
+            candidates = filter(lambda g: pat.match(g), groups_tool.getGroupIds())
+            if len(candidates) > 1:
+                raise ValueError('Group name "%s" is not unique' % local_part)
+        if not group and not candidates:
+            return None
+
+        if not group and candidates:
+            group = groups_tool.getGroupById(candidates[0])
+        return group
+
+
     def __call__(self, site, msg):
         sender = msg.get('From')
         sender = email.Utils.parseaddr(sender)[1]
@@ -112,30 +128,11 @@ class MailToGroupRouter(object):
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
 
-        # Look up the name
-        storage = queryUtility(IGroupAliasStorage)
-        group_name = storage.get(local_part, None)
-        if not group_name:
-            group_name = local_part
-
         # Find the group
-        groups_tool = getToolByName(site, 'portal_groups')
-        group = groups_tool.getGroupById(group_name)
+        group = self._findGroup(site, local_part)
         if not group:
-            pat = re.compile('^%s$' % group_name, re.I) # ignore case
-            candidates = filter(lambda g: pat.match(g), groups_tool.getGroupIds())
-            if len(candidates) > 1:
-                raise ValueError('Group name "%s" is not unique' % group_name)
-        if not group and not candidates:
-            if not local_part == group_name:
-                # local_part is an alias, but the group that it points to does not exist. Something is wrong
-                raise ValueError('Name "%s" is an alias, but the referenced group "%s" does not exist' % (local_part, group_name))
-            else:
-                # local_part not a group, we're not handlig this msg
-                return False
-
-        if not group and candidates:
-            group = groups_tool.getGroupById(candidates[0])
+            # local_part not a group, we're not handlig this msg
+            return False
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
@@ -160,4 +157,4 @@ class MailToGroupRouter(object):
         return True
 
     def priority(self):
-        return 40
+        return 30

@@ -31,9 +31,6 @@ class IFriendlyNameStorage(IMappingStorage):
     """ A place to store the mapping of friendly names to uids, allowing
         a user to email friendlyname@ourdomain instead of uid@ourdomain. """
 
-class IGroupAliasStorage(IMappingStorage):
-    """ Stores aliases for groups for use by mail routers """
-
 class IMailRouter(Interface):
     """ Utilities that act as mail routers implement this interface. """
 

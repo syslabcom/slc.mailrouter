@@ -2,7 +2,7 @@ from persistent import Persistent
 from zope.interface import implements
 from BTrees.OOBTree import OOBTree, OOSet
 from Products.CMFCore.utils import getToolByName
-from slc.mailrouter.interfaces import IFriendlyNameStorage, IGroupAliasStorage
+from slc.mailrouter.interfaces import IFriendlyNameStorage
 
 class FriendlyNameStorage(Persistent):
     implements(IFriendlyNameStorage)
@@ -47,60 +47,4 @@ class FriendlyNameStorage(Persistent):
 
     def __len__(self):
         return len(self._forward)
-
-
-class GroupAliasStorage(Persistent):
-    implements(IGroupAliasStorage)
-
-    def __init__(self):
-        pass
-
-    def _groupdict(self):
-        """ Returns a dict that maps group ids to aliases """
-        groups_tool = getToolByName(self, 'portal_groups')
-        mapped_groups = filter(lambda g: g.getProperty('email'), map(lambda g: groups_tool.getGroupById(g), groups_tool.getGroupIds()))
-        items = [(g.getProperty('id'), g.getProperty('email')) for g in mapped_groups]
-        return dict(items)
-
-    def add(self, groupid, alias):
-        """ Map alias -> groupid. """
-        groups_tool = getToolByName(self, 'portal_groups')
-        group = groups_tool.getGroupById(groupid)
-        if not group:
-            raise KeyError('No such group: %s' % groupid)
-        if group.getProperty('email'):
-            raise ValueError('%s already has an alias' % groupid)
-        if alias.split('@')[0] in map(lambda a: a.split('@')[0], self._groupdict().values()):
-            raise ValueError('Alias %s already mapped' % alias)
-        group.setProperties(dict(email=alias))
-            
-    def remove(self, groupid):
-        """ Remove mapping. """
-        groups_tool = getToolByName(self, 'portal_groups')
-        group = groups_tool.getGroupById(groupid)
-        if not group:
-            # nogroup, no alias
-            return
-        group.setProperties(dict(email=''))
-        
-    def get(self, alias, _marker=None):
-        """ Look up alias, return groupid[s]. """
-        candidates = filter(lambda item: item[1].split('@')[0] == alias.split('@')[0], self._groupdict().items())
-        if not candidates:
-            return _marker
-        elif len(candidates) == 1:
-            return candidates[0][0]
-        else:
-            return map(lambda item: item[0], candidates)
-
-    def lookup(self, groupid, _marker=None):
-        """ Look up groupid, return alias. """
-        return self._groupdict().get(groupid, _marker)
-
-    def __getitem__(self, key):
-        return [(x[1], x[0]) for x in self._groupdict().items()][key]
-
-    def __len__(self):
-        return len(self._groupdict())
-
 
