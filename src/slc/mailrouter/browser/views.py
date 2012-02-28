@@ -43,7 +43,6 @@ class FriendlyNameStorageView(BrowserView):
             specified on the request. """
         remove = self.request.get('remove', ())
         storages = [queryUtility(IFriendlyNameStorage),
-                    queryUtility(IGroupAliasStorage),
                    ]
         for item in remove:
             for storage in storages:
