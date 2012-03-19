@@ -25,7 +25,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'Products.CMFPlone',
+#        'Products.CMFPlone',
     ],
     entry_points="""
         [z3c.autoinclude.plugin]
