@@ -8,6 +8,7 @@ from zope.interface import implements
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.permissions import AddPortalContent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 
@@ -62,6 +63,10 @@ class MailToFolderRouter(object):
         acl_users = getToolByName(site, 'acl_users')
         user = acl_users.getUser(user_id)
         newSecurityManager(None, user.__of__(acl_users))
+
+        # Check permissions
+        if not user.has_permission(AddPortalContent, context):
+            raise ValueError("Insufficient privileges")
 
         # Extract the various parts
         for part in msg.walk():
