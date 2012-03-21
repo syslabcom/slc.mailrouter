@@ -25,7 +25,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'slc.mailrouter.scripts',
+        'slc.smtp2zope',
         'Products.CMFPlone',
     ],
     entry_points="""
