@@ -11,6 +11,7 @@ from Products.CMFCore.permissions import AddPortalContent
 from plone.uuid.interfaces import IUUID
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter.exceptions import PermanentError, TemporaryError
 from slc.mailrouter import MessageFactory as _
 
 class InjectionView(BrowserView):
@@ -26,13 +27,12 @@ class InjectionView(BrowserView):
             try:
                 if router(aq_inner(self.context), msg):
                     return 'OK: Message accepted'
+            except (PermanentError, TemporaryError), e:
+                self.request.response.setStatus(e.status)
+                return 'Fail: %s' % ','.join(e.args)
             except Exception, e:
-                # If there is an exception, fail
                 self.request.response.setStatus(500)
-                try:
-                    return 'Fail: %s' % ','.join(e.args)
-                except IndexError:
-                    return 'Fail: %s' % str(e)
+                return 'Fail: %s' % ','.join(e.args)
 
         self.request.response.setStatus(404)
         return 'FAIL: No router accepted the message'
