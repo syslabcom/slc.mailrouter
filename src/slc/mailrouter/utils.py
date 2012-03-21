@@ -3,9 +3,11 @@ import email
 from datetime import datetime
 from AccessControl.SecurityManagement import newSecurityManager, \
     noSecurityManager
+from zope import event
 from zope.component import queryUtility
 from zope.interface import implements
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
+from Products.Archetypes.event import ObjectEditedEvent
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from slc.mailrouter.interfaces import IFriendlyNameStorage
@@ -63,6 +65,21 @@ class MailToFolderRouter(object):
         user = acl_users.getUser(user_id)
         newSecurityManager(None, user.__of__(acl_users))
 
+        #create a new email container to carry the email and its attachments
+        subject = msg.get('Subject') or '[No Subject]'
+        name = idnormalizer.normalize(subject)
+        if name in context.objectIds():
+            name += datetime.now().strftime('-%Y-%m-%d-%H-%M-%S')
+        
+        context.invokeFactory('staralliance.types.email', name)
+        email = context._getOb(name)
+        email.title = subject
+        #email.mail_subject= subject
+        #email.bodytext = 'Put real mail body here'
+        email.reindexObject()
+        event.notify(ObjectEditedEvent(email))
+        
+        
         # Extract the various parts
         for part in msg.walk():
             if part.is_multipart():
@@ -83,16 +100,17 @@ class MailToFolderRouter(object):
             name = idnormalizer.normalize(file_name)
 
             # Check that the name is safe to use, else add a date to it
-            if name in context.objectIds():
+            if name in email.objectIds():
                 parts = name.split('.')
                 parts[0] += datetime.now().strftime('-%Y-%m-%d-%H-%M-%S')
                 name = '.'.join(parts)
 
-            context.invokeFactory(type_name, name)
-            obj = context._getOb(name)
+            email.invokeFactory(type_name, name)
+            obj = email._getOb(name)
             obj.getPrimaryField().getMutator(obj)(payload)
             obj.setTitle(file_name)
             obj.reindexObject(idxs='Title')
+            event.notify(ObjectEditedEvent(obj))            
             result = True
 
         noSecurityManager()
