@@ -11,6 +11,9 @@ from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
+from slc.mailrouter.exceptions import ConfigurationError
+from slc.mailrouter import MessageFactory as _
 
 UIDRE = re.compile('^[0-9a-f-]+$')
 
@@ -41,12 +44,11 @@ class MailToFolderRouter(object):
         uidcat = getToolByName(site, 'uid_catalog')
         brains = uidcat(UID=uid)
         if not brains:
-            raise ValueError("No such UID")
-            return False
+            raise NotFoundError(_("Folder not found"))
 
         context = brains[0].getObject()
         if not IFolderish.providedBy(context):
-            raise ValueError("Target is not a folder")
+            raise NotFoundError(_("Target is not a folder"))
 
         idnormalizer = queryUtility(IFileNameNormalizer)
         registry = getToolByName(site, 'content_type_registry')
@@ -58,7 +60,7 @@ class MailToFolderRouter(object):
         try:
             user_id = pm.searchMembers('email', sender)[0]['username']
         except IndexError:
-            raise ValueError("Sender is not a member")
+            raise NotFoundError(_("Sender is not a valid user"))
 
         acl_users = getToolByName(site, 'acl_users')
         user = acl_users.getUser(user_id)
@@ -66,7 +68,7 @@ class MailToFolderRouter(object):
 
         # Check permissions
         if not user.has_permission(AddPortalContent, context):
-            raise ValueError("Insufficient privileges")
+            raise PermissionError(_("Insufficient privileges"))
 
         # Extract the various parts
         for part in msg.walk():
@@ -116,7 +118,7 @@ class MailToGroupRouter(object):
             pat = re.compile('^%s$' % local_part, re.I) # ignore case
             candidates = filter(lambda g: pat.match(g), groups_tool.getGroupIds())
             if len(candidates) > 1:
-                raise ValueError('Group name "%s" is not unique' % local_part)
+                raise ConfigurationError('Group name "%s" is not unique' % local_part)
         if not group and not candidates:
             return None
 
@@ -144,7 +146,7 @@ class MailToGroupRouter(object):
         try:
             user_id = pm.searchMembers('email', sender)[0]['username']
         except IndexError:
-            raise ValueError("Sender is not a member")
+            raise NotFoundError(_("Sender is not a valid user"))
 
         acl_users = getToolByName(site, 'acl_users')
         user = acl_users.getUser(user_id)
