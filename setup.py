@@ -5,7 +5,7 @@ version = '0.1'
 setup(
     name='slc.mailrouter',
     version=version,
-    description="Track user movements on your plone site.",
+    description="Framework for handling email in zope",
     long_description=open("README.txt").read(),
     # Get more strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
