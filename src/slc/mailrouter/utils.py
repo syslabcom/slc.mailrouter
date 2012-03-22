@@ -1,16 +1,14 @@
 import re
 import email
-from datetime import datetime
 from AccessControl.SecurityManagement import newSecurityManager, \
     noSecurityManager
 from zope.component import queryUtility
 from zope.interface import implements
-from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
-from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
 from slc.mailrouter.exceptions import ConfigurationError
 from slc.mailrouter import MessageFactory as _
@@ -50,9 +48,6 @@ class MailToFolderRouter(object):
         if not IFolderish.providedBy(context):
             raise NotFoundError(_("Target is not a folder"))
 
-        idnormalizer = queryUtility(IFileNameNormalizer)
-        registry = getToolByName(site, 'content_type_registry')
-
         result = False
 
         # Drop privileges to the right user
@@ -70,37 +65,8 @@ class MailToFolderRouter(object):
         if not user.has_permission(AddPortalContent, context):
             raise PermissionError(_("Insufficient privileges"))
 
-        # Extract the various parts
-        for part in msg.walk():
-            if part.is_multipart():
-                # Ignore the multipart container, we will eventually walk
-                # through all of its contents.
-                continue
-
-            file_name = part.get_filename()
-            if file_name is None:
-                # This is probably inline, ignore it
-                continue
-
-            content_type = part.get_content_type()
-            payload = part.get_payload(decode=1)
-            type_name = registry.findTypeName(file_name, content_type, payload)
-
-            # Normalise file_name into a safe id
-            name = idnormalizer.normalize(file_name)
-
-            # Check that the name is safe to use, else add a date to it
-            if name in context.objectIds():
-                parts = name.split('.')
-                parts[0] += datetime.now().strftime('-%Y-%m-%d-%H-%M-%S')
-                name = '.'.join(parts)
-
-            context.invokeFactory(type_name, name)
-            obj = context._getOb(name)
-            obj.getPrimaryField().getMutator(obj)(payload)
-            obj.setTitle(file_name)
-            obj.reindexObject(idxs='Title')
-            result = True
+        # Defer actual work to an adapter
+        result = IMailImportAdapter(context).add(msg)
 
         noSecurityManager()
         return result

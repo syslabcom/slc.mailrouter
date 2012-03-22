@@ -31,6 +31,7 @@ class InjectionView(BrowserView):
                 self.request.response.setStatus(e.status)
                 return 'Fail: %s' % ','.join(e.args)
             except Exception, e:
+                raise
                 self.request.response.setStatus(500)
                 return 'Fail: %s' % ','.join(e.args)
 

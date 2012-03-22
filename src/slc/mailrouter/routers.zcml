@@ -12,4 +12,10 @@
         provides=".interfaces.IMailRouter"
         factory=".utils.MailToGroupRouter" />
 
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish"
+        provides="slc.mailrouter.interfaces.IMailImportAdapter"
+        factory=".adapters.FolderAdapter"
+        />
+
 </configure>

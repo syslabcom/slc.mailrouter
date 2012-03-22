@@ -6,6 +6,10 @@ class IMailRouterLayer(Interface):
     """Marker Interface used by as BrowserLayer
     """
 
+class IMailImportAdapter(Interface):
+    def add( message):
+        """ Add message to context. """
+
 class IMappingStorage(Interface):
     """ Stores mappings from names to targets. """
 
