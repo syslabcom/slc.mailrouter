@@ -11,12 +11,15 @@ slc.mailrouter implements a component model for the handling of emails. By
 itself it allows the user to send an email to a folder and have all attachments
 on the email stored in that folder. The folder can be addressed either by
 its UID, or by assigning a friendly alias to the folder in the plone control
-panel. To enable this functionality, include the routers.zcml file in your
-add-on product or in your buildout.
+panel.
 
-    <include package="slc.mailrouter" file="routers.zcml" />
+The MailToFolder router is implemented using an adapter pattern. If you want
+to change the way this works, Implement an adapter that adapts IFolderish
+and implements slc.mailrouter.interfaces.IMailImportAdapter. The add() method
+on this adapter receives the message as an argument and is responsible for
+persisting the contents of the message to the folder.
 
-Additional mail functions can be implemented by other products by creating a
+Additional mail routes can be implemented by other products by creating a
 utility and registering it under the interface
 slc.mailrouter.interfaces.IMailRouter. Such mail router utilities are called
 one after the other until one of them reports that the message was successfully
