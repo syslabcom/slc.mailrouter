@@ -7,6 +7,7 @@ from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
+from plone.dexterity.interfaces import IDexterityContainer
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
@@ -45,7 +46,7 @@ class MailToFolderRouter(object):
             raise NotFoundError(_("Folder not found"))
 
         context = brains[0].getObject()
-        if not IFolderish.providedBy(context):
+        if not IFolderish.providedBy(context) or IDexterityContainer.providedBy(context):
             raise NotFoundError(_("Target is not a folder"))
 
         result = False
