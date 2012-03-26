@@ -58,7 +58,7 @@ class MailToFolderRouter(object):
             raise NotFoundError(_("Sender is not a valid user"))
 
         acl_users = getToolByName(site, 'acl_users')
-        user = acl_users.getUser(user_id)
+        user = pm.getMemberById(user_id).getUser()
         newSecurityManager(None, user.__of__(acl_users))
 
         # Check permissions
@@ -68,7 +68,6 @@ class MailToFolderRouter(object):
         # Defer actual work to an adapter
         result = IMailImportAdapter(context).add(msg)
 
-        noSecurityManager()
         return result
 
     def priority(self):
