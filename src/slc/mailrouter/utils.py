@@ -109,13 +109,18 @@ class MailToGroupRouter(object):
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
+        
+        acl_users = getToolByName(site, 'acl_users')
+
+        # WARNING: Assuming login happens through email
+        # Todo: Check / amend this
         try:
-            user_id = pm.searchMembers('email', sender)[0]['username']
+            #user_id = pm.searchMembers('email', sender)[0]['username']
+            user = acl_users.getUserById(sender)
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
-
-        acl_users = getToolByName(site, 'acl_users')
-        user = acl_users.getUser(user_id)
+            
+        #user = acl_users.getUser(user_id)
         newSecurityManager(None, user.__of__(acl_users))
 
         # get members and send messages
