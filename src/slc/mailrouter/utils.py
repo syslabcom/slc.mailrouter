@@ -58,9 +58,9 @@ class MailToFolderRouter(object):
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
 
-        acl_users = getToolByName(site, 'acl_users')
+        self.acl_users = getToolByName(site, 'acl_users')
         user = pm.getMemberById(user_id).getUser()
-        newSecurityManager(None, user.__of__(acl_users))
+        newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
         if not user.has_permission(AddPortalContent, context):
@@ -77,7 +77,11 @@ class MailToFolderRouter(object):
 class MailToGroupRouter(object):
     implements(IMailRouter)
 
-    def _findGroup(self, site, local_part):
+    def _findGroup(self, site, recipient):
+        local_part = recipient.split('@')[0]
+
+        assert len(local_part) <= 50, "local_part must have a reasonable length"
+
         groups_tool = getToolByName(site, 'portal_groups')
         group = groups_tool.getGroupById(local_part)
         if not group:
@@ -94,34 +98,31 @@ class MailToGroupRouter(object):
 
 
     def __call__(self, site, msg):
+        self.acl_users = getToolByName(site, 'acl_users')
+
         sender = msg.get('From')
         sender = email.Utils.parseaddr(sender)[1]
-        local_part = email.Utils.parseaddr(msg.get('To'))[1]
-        local_part = local_part.split('@')[0]
-
-        assert len(local_part) <= 50, "local_part must have a reasonable length"
+        recipient = email.Utils.parseaddr(msg.get('To'))[1]
 
         # Find the group
-        group = self._findGroup(site, local_part)
+        group = self._findGroup(site, recipient)
         if not group:
-            # local_part not a group, we're not handlig this msg
+            # recipient not a group, we're not handlig this msg
             return False
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
         
-        acl_users = getToolByName(site, 'acl_users')
-
         # WARNING: Assuming login happens through email
         # Todo: Check / amend this
         try:
             #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = acl_users.getUserById(sender)
+            user = self.acl_users.getUserById(sender)
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
             
-        #user = acl_users.getUser(user_id)
-        newSecurityManager(None, user.__of__(acl_users))
+        #user = self.acl_users.getUser(user_id)
+        newSecurityManager(None, user.__of__(self.acl_users))
 
         # get members and send messages
         members = group.getGroupMembers()
