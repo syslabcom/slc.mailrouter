@@ -1,7 +1,7 @@
 <html metal:use-macro="here/main_template/macros/master"
       i18n:domain="slc.mailrouter" >
 <body>
-    <div metal:fill-slot="main">
+    <div id="content-core" metal:fill-slot="main">
     <h1 i18n:translate="add_mailroute">Configure Mail Route</h1>
 
     <form action="@@add-mailroute" method="post"
