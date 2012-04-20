@@ -1,7 +1,7 @@
 import re
 import email
 from AccessControl.SecurityManagement import newSecurityManager, \
-    noSecurityManager
+    noSecurityManager, getSecurityManager
 from zope.component import queryUtility
 from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
@@ -63,7 +63,7 @@ class MailToFolderRouter(object):
         newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
-        if not user.has_permission(AddPortalContent, context):
+        if not getSecurityManager().checkPermission('Add / Documents, Images, and Files', context):
             raise PermissionError(_("Insufficient privileges"))
 
         # Defer actual work to an adapter
