@@ -4,25 +4,22 @@
     <div id="content-core" metal:fill-slot="main">
     <h1 i18n:translate="add_mailroute">Configure Mail Route</h1>
 
-    <form action="@@add-mailroute" method="post"
+    <form action="@@add-mailroute" method="post" class="xvalidate"
           tal:define="errors python:request.get('errors', {})">
-        <div class="field"
-             tal:define="error errors/name|nothing"
-             tal:attributes="class python:error and 'field error' or 'field'">
-            <label for="name">Friendly Name</label>
-            <span class="fieldRequired" title="Required"
-                  i18n:attributes="title title_required;"
-                  i18n:translate="label_required">
-                (Required)
-            </span>
-            <div class="fieldErrorBox"
-                        tal:content="error">Error</div>
-            <input type="text" name="name" size="8"
+        <fieldset class="concise">
+            <label for="name">Friendly Name <sup class="required">*</sup>
+
+            <input type="text" name="name"  class="required"
                    tal:attributes="value request/name|view/friendlyname|nothing" />
-        </div>
+			</label>
+        </fieldset>
+
         <input type="hidden" name="form.submitted" value="1" />
-        <input type="submit" class="context" name="form.button.Save"
+		<input type="hidden" name="redirect" tal:attributes="value here/absolute_url" />
+		<fieldset>
+        	<input type="submit" xclass="context" name="form.button.Save"
                value="Save" />
+		<fieldset>
     </form>
     </div>
 </body>
