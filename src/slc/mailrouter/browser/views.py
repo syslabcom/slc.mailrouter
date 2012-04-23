@@ -77,6 +77,8 @@ class FriendlyNameAddView(BrowserView):
                     IStatusMessage(self.request).add(_(u"Mail route enabled."))
 
         self.request['errors'] = errors
+        if self.request.has_key('redirect'):
+            return self.request.RESPONSE.redirect(self.request['redirect'])
         return self.addtemplate()
 
     def friendlyname(self):
