@@ -4,7 +4,7 @@
     <div id="content-core" metal:fill-slot="main">
     <h1 i18n:translate="add_mailroute">Configure Mail Route</h1>
 
-    <form action="@@add-mailroute" method="post" class="xvalidate"
+    <form action="@@add-mailroute" method="post" class="validate"
           tal:define="errors python:request.get('errors', {})">
         <fieldset class="concise">
             <label for="name">Friendly Name <sup class="required">*</sup>
