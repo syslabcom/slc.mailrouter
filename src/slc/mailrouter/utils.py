@@ -63,7 +63,7 @@ class MailToFolderRouter(object):
         newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
-        if not getSecurityManager().checkPermission('Add / Documents, Images, and Files', context):
+        if not getSecurityManager().checkPermission('Add portal content', context):
             raise PermissionError(_("Insufficient privileges"))
 
         # Defer actual work to an adapter
@@ -117,7 +117,7 @@ class MailToGroupRouter(object):
         # Todo: Check / amend this
         try:
             #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = pm.getMemberById(user_id).getUser()
+            user = pm.getMemberById(sender).getUser()
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
             
