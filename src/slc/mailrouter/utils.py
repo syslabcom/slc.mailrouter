@@ -121,9 +121,6 @@ class MailToGroupRouter(object):
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
             
-        #user = self.acl_users.getUser(user_id)
-        newSecurityManager(None, user.__of__(self.acl_users))
-
         # get members and send messages
         members = group.getGroupMembers()
         
