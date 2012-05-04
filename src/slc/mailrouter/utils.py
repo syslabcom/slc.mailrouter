@@ -117,7 +117,7 @@ class MailToGroupRouter(object):
         # Todo: Check / amend this
         try:
             #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = self.acl_users.getUserById(sender)
+            user = pm.getMemberById(user_id).getUser()
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
             
