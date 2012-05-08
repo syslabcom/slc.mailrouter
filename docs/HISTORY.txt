@@ -4,7 +4,15 @@ Changelog
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- fixed permission and getting user [reinhardt]
+- use getMemberById for group mail, too [reinhardt]
+- newSecurityManager does not make sense when mailing to group [reinhardt]
+- enable validation - needs patterns update [chaoflow]
+- made redirect work [pilz]
+- use SecurityManager.checkPermission(), weird failures with
+  user.has_permission() [reinhardt]
+- added gitignore [thomasw]
+- an id for the main div [reinhardt]
 
 
 0.1 (2012-04-03)
