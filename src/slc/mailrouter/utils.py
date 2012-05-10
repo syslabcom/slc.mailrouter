@@ -53,13 +53,17 @@ class MailToFolderRouter(object):
 
         # Drop privileges to the right user
         pm = getToolByName(site, 'portal_membership')
+
+        # WARNING: Assuming login happens through email
+        # Todo: Check / amend this
         try:
-            user_id = pm.searchMembers('email', sender)[0]['username']
+            #user_id = pm.searchMembers('email', sender)[0]['username']
+            user = pm.getMemberById(sender).getUser()
         except IndexError:
             raise NotFoundError(_("Sender is not a valid user"))
+        #user = pm.getMemberById(user_id).getUser()
 
         self.acl_users = getToolByName(site, 'acl_users')
-        user = pm.getMemberById(user_id).getUser()
         newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
