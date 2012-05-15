@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.3 (unreleased)
-----------------
+0.2.1 (2012-05-15)
+------------------
 
 - assume email == login for folders like for groups [reinhardt]
 
