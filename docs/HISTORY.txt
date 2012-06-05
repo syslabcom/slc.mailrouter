@@ -4,7 +4,7 @@ Changelog
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- use X-Original-To header if present. Fixes #5117 [reinhardt]
 
 
 0.2.1 (2012-05-15)
