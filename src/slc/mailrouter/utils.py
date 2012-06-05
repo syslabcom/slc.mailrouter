@@ -22,7 +22,11 @@ class MailToFolderRouter(object):
     def __call__(self, site, msg):
         sender = msg.get('From')
         sender = email.Utils.parseaddr(sender)[1]
-        local_part = email.Utils.parseaddr(msg.get('To'))[1]
+        if 'X-Original-To' in msg:
+            header = 'X-Original-To'
+        else:
+            header = 'To'
+        local_part = email.Utils.parseaddr(msg.get(header))[1]
         local_part = local_part.split('@')[0]
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
@@ -106,7 +110,11 @@ class MailToGroupRouter(object):
 
         sender = msg.get('From')
         sender = email.Utils.parseaddr(sender)[1]
-        recipient = email.Utils.parseaddr(msg.get('To'))[1]
+        if 'X-Original-To' in msg:
+            header = 'X-Original-To'
+        else:
+            header = 'To'
+        recipient = email.Utils.parseaddr(msg.get(header))[1]
 
         # Find the group
         group = self._findGroup(site, recipient)
