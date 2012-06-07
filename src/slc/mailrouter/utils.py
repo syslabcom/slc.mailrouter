@@ -63,7 +63,7 @@ class MailToFolderRouter(object):
         try:
             #user_id = pm.searchMembers('email', sender)[0]['username']
             user = pm.getMemberById(sender).getUser()
-        except IndexError:
+        except IndexError, AttributeError:
             raise NotFoundError(_("Sender is not a valid user"))
         #user = pm.getMemberById(user_id).getUser()
 
