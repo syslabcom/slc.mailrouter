@@ -13,6 +13,9 @@ from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
 from slc.mailrouter.exceptions import ConfigurationError
 from slc.mailrouter import MessageFactory as _
+from logging import getLogger
+
+logger = getLogger('slc.mailrouter.utils')
 
 UIDRE = re.compile('^[0-9a-f-]+$')
 
@@ -27,6 +30,7 @@ class MailToFolderRouter(object):
         else:
             header = 'To'
         local_part = email.Utils.parseaddr(msg.get(header))[1]
+        logger.info('MailToFolderRouter called with mail from %s to %s' % (sender, local_part))
         local_part = local_part.split('@')[0]
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
@@ -115,6 +119,7 @@ class MailToGroupRouter(object):
         else:
             header = 'To'
         recipient = email.Utils.parseaddr(msg.get(header))[1]
+        logger.info('MailToGroupRouter called with mail from %s to %s' % (sender, recipient))
 
         # Find the group
         group = self._findGroup(site, recipient)
