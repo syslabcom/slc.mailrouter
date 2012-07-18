@@ -6,6 +6,10 @@
 
     <form action="@@add-mailroute" method="post" class="validate"
           tal:define="errors python:request.get('errors', {})">
+        <dl class="portalMessage error" tal:condition="errors">
+            <dt>Error</dt>
+            <dd tal:content="errors/name">Something went wrong</dd>
+        </dl>
         <fieldset class="concise">
             <label for="name">Friendly Name <sup class="required">*</sup>
 
