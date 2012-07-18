@@ -5,7 +5,8 @@ Changelog
 ----------------
 
 - added basic logging (from and to addresses) [reinhardt]
-
+- include sender and context (if applicable) in error messages [reinhardt]
+- catch AttributeError in MailToGroupRouter, too [reinhardt]
 
 1.2 (2012-07-18)
 ----------------
