@@ -1,7 +1,19 @@
 Changelog
 =========
 
-1.3 (unreleased)
+1.5 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
+1.4 (2012-07-18)
+----------------
+
+- Nothing changed yet.
+
+
+1.3 (2012-07-18)
 ----------------
 
 - added basic logging (from and to addresses) [reinhardt]
