@@ -4,7 +4,8 @@ Changelog
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- add-mailrouter: actually show errors instead of just collecting them 
+  [reinhardt]
 
 
 1.4 (2012-07-18)
