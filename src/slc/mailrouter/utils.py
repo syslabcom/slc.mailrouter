@@ -55,7 +55,7 @@ class MailToFolderRouter(object):
 
         context = brains[0].getObject()
         if not IFolderish.providedBy(context):
-            raise NotFoundError(_("Target is not a folder"))
+            raise NotFoundError(_("Target %s is not a folder" % context.getId()))
 
         result = False
 
@@ -68,7 +68,7 @@ class MailToFolderRouter(object):
             #user_id = pm.searchMembers('email', sender)[0]['username']
             user = pm.getMemberById(sender).getUser()
         except (IndexError, AttributeError):
-            raise NotFoundError(_("Sender is not a valid user"))
+            raise NotFoundError(_("%s is not a valid user address" % sender))
         #user = pm.getMemberById(user_id).getUser()
 
         self.acl_users = getToolByName(site, 'acl_users')
@@ -76,7 +76,7 @@ class MailToFolderRouter(object):
 
         # Check permissions
         if not getSecurityManager().checkPermission('Add portal content', context):
-            raise PermissionError(_("Insufficient privileges"))
+            raise PermissionError(_("%s has insufficient privileges on %s" % (sender, context.getId())))
 
         # Defer actual work to an adapter
         result = IMailImportAdapter(context).add(msg)
@@ -135,8 +135,8 @@ class MailToGroupRouter(object):
         try:
             #user_id = pm.searchMembers('email', sender)[0]['username']
             user = pm.getMemberById(sender).getUser()
-        except IndexError:
-            raise NotFoundError(_("Sender is not a valid user"))
+        except (IndexError, AttributeError):
+            raise NotFoundError(_("%s is not a valid user address" % sender))
             
         # get members and send messages
         members = group.getGroupMembers()
