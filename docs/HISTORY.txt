@@ -4,6 +4,8 @@ Changelog
 1.5 (unreleased)
 ----------------
 
+- improved logging and error codes/messages, dump mails that produce errors 
+  [reinhardt]
 - add-mailrouter: actually show errors instead of just collecting them 
   [reinhardt]
 
