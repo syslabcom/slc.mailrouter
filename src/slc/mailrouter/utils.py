@@ -68,7 +68,7 @@ class MailToFolderRouter(object):
             #user_id = pm.searchMembers('email', sender)[0]['username']
             user = pm.getMemberById(sender).getUser()
         except (IndexError, AttributeError):
-            raise NotFoundError(_("%s is not a valid user address" % sender))
+            raise PermissionError(_("%s is not a permitted sender address" % sender))
         #user = pm.getMemberById(user_id).getUser()
 
         self.acl_users = getToolByName(site, 'acl_users')
@@ -136,7 +136,7 @@ class MailToGroupRouter(object):
             #user_id = pm.searchMembers('email', sender)[0]['username']
             user = pm.getMemberById(sender).getUser()
         except (IndexError, AttributeError):
-            raise NotFoundError(_("%s is not a valid user address" % sender))
+            raise PermissionError(_("%s is not a permitted sender address" % sender))
             
         # get members and send messages
         members = group.getGroupMembers()

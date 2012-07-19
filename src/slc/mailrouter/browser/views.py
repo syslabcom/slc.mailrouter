@@ -13,6 +13,10 @@ from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter.exceptions import PermanentError, TemporaryError
 from slc.mailrouter import MessageFactory as _
+from tempfile import NamedTemporaryFile
+from logging import getLogger
+
+logger = getLogger('slc.mailrouter.browser')
 
 class InjectionView(BrowserView):
     def __call__(self):
@@ -29,14 +33,27 @@ class InjectionView(BrowserView):
                     return 'OK: Message accepted'
             except (PermanentError, TemporaryError), e:
                 self.request.response.setStatus(e.status)
+                self.dump_mail()
+                logger.warn(','.join(e.args))
                 return 'Fail: %s' % ','.join(e.args)
             except Exception, e:
-                raise
-                self.request.response.setStatus(500)
+                #raise
+                self.request.response.setStatus(500, reason=','.join(e.args))
+                self.dump_mail()
+                logger.error(','.join(e.args))
                 return 'Fail: %s' % ','.join(e.args)
 
         self.request.response.setStatus(404)
-        return 'FAIL: No router accepted the message'
+        logger.warn(','.join(e.args))
+        return 'FAIL: Recipient address %s not found' % \
+                (msg.get('X-Original-To') or msg.get('To'))
+
+    def dump_mail(self):
+        tmpfile = NamedTemporaryFile(prefix='mailrouter-dump', delete=False)
+        self.request.stdin.seek(0)
+        tmpfile.write(self.request.stdin.read())
+        logger.info('Dumped mail to %s' % tmpfile.name)
+        tmpfile.close()
 
 class FriendlyNameStorageView(BrowserView):
     def update(self):

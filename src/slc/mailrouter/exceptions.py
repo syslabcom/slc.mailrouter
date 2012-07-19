@@ -8,7 +8,7 @@ class TemporaryError(Exception):
 
 class PermissionError(PermanentError):
     """ Raise this if not enough permission to deliver email. """
-    status = 401
+    status = 403
 
 class NotFoundError(PermanentError):
     """ Raise this if target cannot be found. """
