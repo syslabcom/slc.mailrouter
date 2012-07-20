@@ -44,7 +44,8 @@ class InjectionView(BrowserView):
                 return 'Fail: %s' % ','.join(e.args)
 
         self.request.response.setStatus(404)
-        logger.warn(','.join(e.args))
+        logger.warn('FAIL: Recipient address %s not found' % \
+                (msg.get('X-Original-To') or msg.get('To')))
         return 'FAIL: Recipient address %s not found' % \
                 (msg.get('X-Original-To') or msg.get('To'))
 
