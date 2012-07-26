@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.5 (unreleased)
+1.5 (2012-07-26)
 ----------------
 
 - improved logging and error codes/messages, dump mails that produce errors 
