@@ -54,6 +54,9 @@ class MailToFolderRouter(object):
             raise NotFoundError(_("Folder not found"))
 
         context = brains[0].getObject()
+        if not context:
+            raise NotFoundError(_("Target %s found, but getObject failed" % \
+                brains[0]['getId']))
         if not IFolderish.providedBy(context):
             raise NotFoundError(_("Target %s is not a folder" % context.getId()))
 
