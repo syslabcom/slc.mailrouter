@@ -86,7 +86,8 @@ class FriendlyNameAddView(BrowserView):
                 errors.update(
                     {'name': _(u'You must provide a friendly name.')})
             if not errors:
-                if storage.get(name):
+                existing = storage.get(name)
+                if existing and not existing == target:
                     errors.update(
                         {'name': _(u'This name is already in use.')})
                 else:
