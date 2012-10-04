@@ -170,7 +170,6 @@ def sendMailToGroup(context, msg, groupid):
     msg.add_header('BCC', bcc)
         
     for mmbr in members:
-        raise ValueError('Something went wrong')
         context.MailHost.send(msg, mto=mmbr.getProperty('email'))
 
 class AsyncMailToGroupRouter(MailToGroupRouter):
