@@ -1,19 +1,20 @@
 import re
 import email
 from AccessControl.SecurityManagement import newSecurityManager, \
-    noSecurityManager, getSecurityManager
+    getSecurityManager
 from zope.component import queryUtility
 from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
-from Products.CMFCore.permissions import AddPortalContent
-from plone.dexterity.interfaces import IDexterityContainer
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
-from slc.mailrouter.exceptions import ConfigurationError
 from slc.mailrouter import MessageFactory as _
 from logging import getLogger
+try:
+    from plone.app.async.interfaces import IAsyncService
+except ImportError:
+    pass
 
 logger = getLogger('slc.mailrouter.utils')
 
@@ -112,6 +113,16 @@ class MailToGroupRouter(object):
         return group
 
 
+    def _sendMailToGroup(self, site, msg, group):
+        # get members and send messages
+        members = group.getGroupMembers()
+        
+        bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
+        msg.add_header('BCC', bcc)
+            
+        for mmbr in members:
+            site.MailHost.send(msg, mto=mmbr.getProperty('email'))
+
     def __call__(self, site, msg):
         self.acl_users = getToolByName(site, 'acl_users')
 
@@ -141,16 +152,31 @@ class MailToGroupRouter(object):
         except (IndexError, AttributeError):
             raise PermissionError(_("%s is not a permitted sender address" % sender))
             
-        # get members and send messages
-        members = group.getGroupMembers()
-        
-        bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
-        msg.add_header('BCC', bcc)
-            
-        for mmbr in members:
-            site.MailHost.send(msg, mto=mmbr.getProperty('email'))
+        self._sendMailToGroup(site, msg, group)
 
         return True
 
     def priority(self):
         return 30
+
+# for use in async
+def sendMailToGroup(context, msg, groupid):
+    # get members and send messages
+    acl_users = getToolByName(context, 'acl_users')
+    group = acl_users.getGroupById(groupid)
+    members = group.getGroupMembers()
+    
+    bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
+    msg.add_header('BCC', bcc)
+        
+    for mmbr in members:
+        raise ValueError('Something went wrong')
+        context.MailHost.send(msg, mto=mmbr.getProperty('email'))
+
+class AsyncMailToGroupRouter(MailToGroupRouter):
+    implements(IMailRouter)
+
+    def _sendMailToGroup(self, site, msg, group):
+        async = queryUtility(IAsyncService, default=None, context=self)
+        async.queueJob(sendMailToGroup, site, msg, group.id)
+

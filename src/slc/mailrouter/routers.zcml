@@ -12,6 +12,13 @@
         provides=".interfaces.IMailRouter"
         factory=".utils.MailToGroupRouter" />
 
+    <!-- Async variant of group router, remove regular variant when using this
+    <utility
+        name="groupmail"
+        provides=".interfaces.IMailRouter"
+        factory=".utils.AsyncMailToGroupRouter" />
+    -->
+
     <adapter
         for="Products.CMFCore.interfaces.IFolderish"
         provides="slc.mailrouter.interfaces.IMailImportAdapter"
