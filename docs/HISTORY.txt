@@ -10,7 +10,7 @@ Changelog
 1.9 (2012-10-05)
 ----------------
 
-- Nothing changed yet.
+- no need to call MailHost.send() for each recipient [reinhardt]
 
 
 1.8 (2012-10-05)
