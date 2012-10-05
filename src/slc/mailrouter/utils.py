@@ -169,8 +169,7 @@ def sendMailToGroup(context, msg, groupid):
     bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
     msg.add_header('BCC', bcc)
         
-    for mmbr in members:
-        context.MailHost.send(msg, mto=mmbr.getProperty('email'))
+    context.MailHost.send(msg)
 
 class AsyncMailToGroupRouter(MailToGroupRouter):
     implements(IMailRouter)
