@@ -120,8 +120,7 @@ class MailToGroupRouter(object):
         bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
         msg.add_header('BCC', bcc)
             
-        for mmbr in members:
-            site.MailHost.send(msg, mto=mmbr.getProperty('email'))
+        site.MailHost.send(msg)
 
     def __call__(self, site, msg):
         self.acl_users = getToolByName(site, 'acl_users')
