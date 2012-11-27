@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.10 (unreleased)
------------------
+1.9.1 (2012-11-27)
+------------------
 
 - fixed another instance of the MailHost.send() bug [reinhardt]
 
