@@ -4,7 +4,7 @@ Changelog
 1.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- fixed another instance of the MailHost.send() bug [reinhardt]
 
 
 1.9 (2012-10-05)
