@@ -4,7 +4,8 @@ Changelog
 1.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- collected common code in BaseMailRouter, fixed getting sender and recipient,
+  send mails in batches of 50 [reinhardt]
 
 
 1.9.1 (2012-11-27)
