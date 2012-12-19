@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10 (unreleased)
+1.10 (2012-12-19)
 -----------------
 
 - collected common code in BaseMailRouter, fixed getting sender and recipient,
