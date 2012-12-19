@@ -20,19 +20,45 @@ logger = getLogger('slc.mailrouter.utils')
 
 UIDRE = re.compile('^[0-9a-f-]+$')
 
-class MailToFolderRouter(object):
+class BaseMailRouter(object):
+    def __call__(self, site, msg):
+        self.site = site
+        self.acl_users = getToolByName(site, 'acl_users')
+
+        sender_from = msg.get('From')
+        sender_return_path = msg.get('Return-Path')
+        sender_from = email.Utils.parseaddr(sender_from)[1]
+        sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
+        del msg['Return-Path']
+        recipient = email.Utils.parseaddr(msg.get('X-Original-To'))[1]
+        del msg['X-Original-To']
+
+        pm = getToolByName(self.site, 'portal_membership')
+
+        # WARNING: Assuming login happens through email
+        # Todo: Check / amend this
+        user = None
+        try:
+            #user_id = pm.searchMembers('email', sender)[0]['username']
+            user = pm.getMemberById(sender_return_path).getUser()
+        except (IndexError, AttributeError):
+            try:
+                #user_id = pm.searchMembers('email', sender)[0]['username']
+                user = pm.getMemberById(sender_from).getUser()
+            except (IndexError, AttributeError):
+                raise PermissionError(_("No permitted sender address: %s, %s" %
+                    (sender_return_path, sender_from)))
+        #user = pm.getMemberById(user_id).getUser()
+
+        return self.deliver(msg, user, recipient)
+
+class MailToFolderRouter(BaseMailRouter):
     implements(IMailRouter)
 
-    def __call__(self, site, msg):
-        sender = msg.get('From')
-        sender = email.Utils.parseaddr(sender)[1]
-        if 'X-Original-To' in msg:
-            header = 'X-Original-To'
-        else:
-            header = 'To'
-        local_part = email.Utils.parseaddr(msg.get(header))[1]
-        logger.info('MailToFolderRouter called with mail from %s to %s' % (sender, local_part))
-        local_part = local_part.split('@')[0]
+    def deliver(self, msg, user, recipient):
+        logger.info('MailToFolderRouter called with mail from %s to %s' %
+                (user.getProperty('email'), recipient))
+        local_part = recipient.split('@')[0]
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
 
@@ -49,7 +75,7 @@ class MailToFolderRouter(object):
             # this is not something we can handle.
             return False
         
-        uidcat = getToolByName(site, 'uid_catalog')
+        uidcat = getToolByName(self.site, 'uid_catalog')
         brains = uidcat(UID=uid)
         if not brains:
             raise NotFoundError(_("Folder not found"))
@@ -64,23 +90,12 @@ class MailToFolderRouter(object):
         result = False
 
         # Drop privileges to the right user
-        pm = getToolByName(site, 'portal_membership')
-
-        # WARNING: Assuming login happens through email
-        # Todo: Check / amend this
-        try:
-            #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = pm.getMemberById(sender).getUser()
-        except (IndexError, AttributeError):
-            raise PermissionError(_("%s is not a permitted sender address" % sender))
-        #user = pm.getMemberById(user_id).getUser()
-
-        self.acl_users = getToolByName(site, 'acl_users')
+        self.acl_users = getToolByName(self.site, 'acl_users')
         newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
         if not getSecurityManager().checkPermission('Add portal content', context):
-            raise PermissionError(_("%s has insufficient privileges on %s" % (sender, context.getId())))
+            raise PermissionError(_("%s has insufficient privileges on %s" % (user.getProperty('email'), context.getId())))
 
         # Defer actual work to an adapter
         result = IMailImportAdapter(context).add(msg)
@@ -90,7 +105,7 @@ class MailToFolderRouter(object):
     def priority(self):
         return 50
 
-class MailToGroupRouter(object):
+class MailToGroupRouter(BaseMailRouter):
     implements(IMailRouter)
 
     def _findGroup(self, site, recipient):
@@ -117,46 +132,29 @@ class MailToGroupRouter(object):
         # get members and send messages
         members = group.getGroupMembers()
         
-        bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
-        msg.add_header('BCC', bcc)
+        mto = [mmbr.getProperty('email') for mmbr in members]
             
-        site.MailHost.send(msg)
+        send_batched(site, msg, mto)
 
-    def __call__(self, site, msg):
-        self.acl_users = getToolByName(site, 'acl_users')
-
-        sender = msg.get('From')
-        sender = email.Utils.parseaddr(sender)[1]
-        if 'X-Original-To' in msg:
-            header = 'X-Original-To'
-        else:
-            header = 'To'
-        recipient = email.Utils.parseaddr(msg.get(header))[1]
-        logger.info('MailToGroupRouter called with mail from %s to %s' % (sender, recipient))
+    def deliver(self, msg, user, recipient):
+        logger.info('MailToGroupRouter called with mail from %s to %s' % (user.getProperty('email'), recipient))
 
         # Find the group
-        group = self._findGroup(site, recipient)
+        group = self._findGroup(self.site, recipient)
         if not group:
             # recipient not a group, we're not handlig this msg
             return False
 
-        # Drop privileges to the right user
-        pm = getToolByName(site, 'portal_membership')
-        
-        # WARNING: Assuming login happens through email
-        # Todo: Check / amend this
-        try:
-            #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = pm.getMemberById(sender).getUser()
-        except (IndexError, AttributeError):
-            raise PermissionError(_("%s is not a permitted sender address" % sender))
-            
-        self._sendMailToGroup(site, msg, group)
+        self._sendMailToGroup(self.site, msg, group)
 
         return True
 
     def priority(self):
         return 30
+
+def send_batched(context, msg, mto):
+    for batch in [mto[i:i+50] for i in range(0, len(mto), 50)]:
+        context.MailHost.send(msg, mto=batch)
 
 # for use in async
 def sendMailToGroup(context, msg, groupid):
@@ -165,10 +163,9 @@ def sendMailToGroup(context, msg, groupid):
     group = acl_users.getGroupById(groupid)
     members = group.getGroupMembers()
     
-    bcc = ', '.join([mmbr.getProperty('email') for mmbr in members])
-    msg.add_header('BCC', bcc)
+    mto = [mmbr.getProperty('email') for mmbr in members]
         
-    context.MailHost.send(msg)
+    send_batched(context, msg, mto)
 
 class AsyncMailToGroupRouter(MailToGroupRouter):
     implements(IMailRouter)
