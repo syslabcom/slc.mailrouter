@@ -1,5 +1,6 @@
 import re
 import email
+from copy import copy
 from AccessControl.SecurityManagement import newSecurityManager, \
     getSecurityManager
 from zope.component import queryUtility
@@ -29,9 +30,7 @@ class BaseMailRouter(object):
         sender_return_path = msg.get('Return-Path')
         sender_from = email.Utils.parseaddr(sender_from)[1]
         sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
-        del msg['Return-Path']
         recipient = email.Utils.parseaddr(msg.get('X-Original-To'))[1]
-        del msg['X-Original-To']
 
         pm = getToolByName(self.site, 'portal_membership')
 
@@ -153,8 +152,11 @@ class MailToGroupRouter(BaseMailRouter):
         return 30
 
 def send_batched(context, msg, mto):
+    msg_out = copy(msg)
+    del msg_out['Return-Path']
+    del msg_out['X-Original-To']
     for batch in [mto[i:i+50] for i in range(0, len(mto), 50)]:
-        context.MailHost.send(msg, mto=batch)
+        context.MailHost.send(msg_out, mto=batch)
 
 # for use in async
 def sendMailToGroup(context, msg, groupid):
