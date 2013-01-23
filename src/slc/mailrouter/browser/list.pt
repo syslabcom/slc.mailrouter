@@ -1,7 +1,8 @@
 <html metal:use-macro="context/prefs_main_template/macros/master"
       i18n:domain="slc.mailrouter" >
 <body>
-    <div metal:fill-slot="prefs_configlet_main"
+    <div id="content"
+         metal:fill-slot="prefs_configlet_main"
          tal:define="dummy view/update">
       <h1 i18n:translate="list_mailroutes">Mail Routes</h1>
       <div tal:define="batch view/folder_mappings">
