@@ -1,4 +1,5 @@
 import email
+import re
 from Acquisition import aq_inner
 from zope.component import queryUtility, getAllUtilitiesRegisteredFor
 from Products.Five import BrowserView
@@ -85,6 +86,9 @@ class FriendlyNameAddView(BrowserView):
             if not name:
                 errors.update(
                     {'name': _(u'You must provide a friendly name.')})
+            elif not re.match(r'^[a-zA-Z0-9_./-]+$', name):
+                errors.update(
+                    {'name': _(u'Forbidden characters in friendly name. Allowed characters: a-zA-Z0-9_./-')})
             if not errors:
                 existing = storage.get(name)
                 if existing and not existing == target:
