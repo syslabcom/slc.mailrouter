@@ -158,6 +158,7 @@ def send_batched(context, msg, mto):
     del msg_out['X-Original-To']
     for batch in [mto[i:i+50] for i in range(0, len(mto), 50)]:
         context.MailHost._send(mfrom, batch, msg_out.as_string())
+        logger.info("Distributing group mail for '%s' to recipients %s" % (msg['X-Original-To'], ', '.join(batch)))
 
 # for use in async
 def sendMailToGroup(context, msg, groupid):
