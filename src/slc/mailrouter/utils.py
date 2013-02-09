@@ -55,8 +55,8 @@ class MailToFolderRouter(BaseMailRouter):
     implements(IMailRouter)
 
     def deliver(self, msg, user, recipient):
-        logger.info('MailToFolderRouter called with mail from %s to %s' %
-                (user.getProperty('email'), recipient))
+        logger.info('MailToFolderRouter called with message %s from %s to %s' %
+                (msg.get('Message-ID'), user.getProperty('email'), recipient))
         local_part = recipient.split('@')[0]
 
         assert len(local_part) <= 50, "local_part must have a reasonable length"
@@ -133,13 +133,18 @@ class MailToGroupRouter(BaseMailRouter):
         
         mto = [mmbr.getProperty('email') for mmbr in members]
             
+        logger.info('Sending message with ID %s to recipients %s' %
+                    (msg.get('Message-ID'), ', '.join(mto)))
         send_batched(site, msg, mto)
 
     def deliver(self, msg, user, recipient):
-        logger.info('MailToGroupRouter called with mail from %s to %s' % (user.getProperty('email'), recipient))
+        logger.info('MailToFolderRouter called with message %s from %s to %s' %
+                (msg.get('Message-ID'), user.getProperty('email'), recipient))
 
         # Find the group
         group = self._findGroup(self.site, recipient)
+        logger.info('Resolved message with ID %s for group %s' %
+                    (msg.get('Message-ID'), group.getId()))
         if not group:
             # recipient not a group, we're not handlig this msg
             return False
