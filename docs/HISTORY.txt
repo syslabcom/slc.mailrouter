@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.4 (unreleased)
+1.10.4 (2013-03-13)
 -------------------
 
 - safer way to build error message [reinhardt]
