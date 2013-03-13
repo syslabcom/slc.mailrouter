@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.10.4'
+version = '1.10.5.dev0'
 
 setup(
     name='slc.mailrouter',
