@@ -4,7 +4,8 @@ Changelog
 1.10.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- safer way to build error message [reinhardt]
+- more logging, log message id [reinhardt]
 
 
 1.10.3 (2013-01-24)
