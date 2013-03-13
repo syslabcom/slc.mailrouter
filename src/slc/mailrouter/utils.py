@@ -9,7 +9,8 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
-from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
+from slc.mailrouter.exceptions import (PermissionError, NotFoundError,
+                                       ConfigurationError)
 from slc.mailrouter import MessageFactory as _
 from logging import getLogger
 try:
@@ -20,6 +21,7 @@ except ImportError:
 logger = getLogger('slc.mailrouter.utils')
 
 UIDRE = re.compile('^[0-9a-f-]+$')
+
 
 class BaseMailRouter(object):
     def __call__(self, site, msg):
@@ -46,20 +48,25 @@ class BaseMailRouter(object):
                 user = pm.getMemberById(sender_from).getUser()
             except (IndexError, AttributeError):
                 raise PermissionError(_("No permitted sender address: %s, %s" %
-                    (sender_return_path, sender_from)))
+                                      (sender_return_path, sender_from)))
         #user = pm.getMemberById(user_id).getUser()
 
         return self.deliver(msg, user, recipient)
+
 
 class MailToFolderRouter(BaseMailRouter):
     implements(IMailRouter)
 
     def deliver(self, msg, user, recipient):
         logger.info('MailToFolderRouter called with message %s from %s to %s' %
-                (msg.get('Message-ID'), user.getProperty('email'), recipient))
+                    (msg.get('Message-ID'),
+                     user.getProperty('email'),
+                     recipient)
+                    )
         local_part = recipient.split('@')[0]
 
-        assert len(local_part) <= 50, "local_part must have a reasonable length"
+        assert len(local_part) <= 50, \
+            "local_part must have a reasonable length"
 
         # Find the right context. Do that by looking up local_part
         # in our local friendly-name storage, and if not found, check
@@ -73,7 +80,7 @@ class MailToFolderRouter(BaseMailRouter):
             # local_part is not a uid and is not mapped onto a folder,
             # this is not something we can handle.
             return False
-        
+
         uidcat = getToolByName(self.site, 'uid_catalog')
         brains = uidcat(UID=uid)
         if not brains:
@@ -81,10 +88,12 @@ class MailToFolderRouter(BaseMailRouter):
 
         context = brains[0].getObject()
         if not context:
-            raise NotFoundError(_("Target %s found, but getObject failed" % \
-                brains[0]['getId']))
+            raise NotFoundError(_("Target %s found, but getObject failed" %
+                                  brains[0]['getId']))
         if not IFolderish.providedBy(context):
-            raise NotFoundError(_("Target %s is not a folder" % context.getId()))
+            raise NotFoundError(
+                _("Target %s is not a folder" % context.getId())
+            )
 
         result = False
 
@@ -93,8 +102,15 @@ class MailToFolderRouter(BaseMailRouter):
         newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
-        if not getSecurityManager().checkPermission('Add portal content', context):
-            raise PermissionError(_("%s has insufficient privileges on %s" % (user.getProperty('email'), context.getId())))
+        if not getSecurityManager().checkPermission(
+                'Add portal content',
+                context):
+            raise PermissionError(
+                _("%s has insufficient privileges on %s" % (
+                  user.getProperty('email'),
+                  context.getId()
+                ))
+            )
 
         # Defer actual work to an adapter
         result = IMailImportAdapter(context).add(msg)
@@ -104,21 +120,26 @@ class MailToFolderRouter(BaseMailRouter):
     def priority(self):
         return 50
 
+
 class MailToGroupRouter(BaseMailRouter):
     implements(IMailRouter)
 
     def _findGroup(self, site, recipient):
         local_part = recipient.split('@')[0]
 
-        assert len(local_part) <= 50, "local_part must have a reasonable length"
+        assert len(local_part) <= 50, \
+            "local_part must have a reasonable length"
 
         groups_tool = getToolByName(site, 'portal_groups')
         group = groups_tool.getGroupById(local_part)
         if not group:
-            pat = re.compile('^%s$' % local_part, re.I) # ignore case
-            candidates = filter(lambda g: pat.match(g), groups_tool.getGroupIds())
+            pat = re.compile('^%s$' % local_part, re.I)  # ignore case
+            candidates = filter(lambda g: pat.match(g),
+                                groups_tool.getGroupIds())
             if len(candidates) > 1:
-                raise ConfigurationError('Group name "%s" is not unique' % local_part)
+                raise ConfigurationError(
+                    'Group name "%s" is not unique' % local_part
+                )
         if not group and not candidates:
             return None
 
@@ -126,20 +147,22 @@ class MailToGroupRouter(BaseMailRouter):
             group = groups_tool.getGroupById(candidates[0])
         return group
 
-
     def _sendMailToGroup(self, site, msg, group):
         # get members and send messages
         members = group.getGroupMembers()
-        
+
         mto = [mmbr.getProperty('email') for mmbr in members]
-            
+
         logger.info('Sending message with ID %s to recipients %s' %
                     (msg.get('Message-ID'), ', '.join(mto)))
         send_batched(site, msg, mto)
 
     def deliver(self, msg, user, recipient):
         logger.info('MailToFolderRouter called with message %s from %s to %s' %
-                (msg.get('Message-ID'), user.getProperty('email'), recipient))
+                    (msg.get('Message-ID'),
+                     user.getProperty('email'),
+                     recipient)
+        )
 
         # Find the group
         group = self._findGroup(self.site, recipient)
@@ -156,6 +179,7 @@ class MailToGroupRouter(BaseMailRouter):
     def priority(self):
         return 30
 
+
 def send_batched(context, msg, mto):
     mfrom = msg.get('Return-Path')
     msg_out = copy(msg)
@@ -163,7 +187,10 @@ def send_batched(context, msg, mto):
     del msg_out['X-Original-To']
     for batch in [mto[i:i+50] for i in range(0, len(mto), 50)]:
         context.MailHost._send(mfrom, batch, msg_out.as_string())
-        logger.info("Distributing group mail for '%s' to recipients %s" % (msg['X-Original-To'], ', '.join(batch)))
+        logger.info("Distributing group mail for '%s' to recipients %s" % (
+            msg['X-Original-To'], ', '.join(batch))
+        )
+
 
 # for use in async
 def sendMailToGroup(context, msg, groupid):
@@ -171,10 +198,11 @@ def sendMailToGroup(context, msg, groupid):
     acl_users = getToolByName(context, 'acl_users')
     group = acl_users.getGroupById(groupid)
     members = group.getGroupMembers()
-    
+
     mto = [mmbr.getProperty('email') for mmbr in members]
-        
+
     send_batched(context, msg, mto)
+
 
 class AsyncMailToGroupRouter(MailToGroupRouter):
     implements(IMailRouter)
