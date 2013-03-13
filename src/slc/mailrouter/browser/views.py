@@ -33,16 +33,18 @@ class InjectionView(BrowserView):
                 if router(aq_inner(self.context), msg):
                     return 'OK: Message accepted'
             except (PermanentError, TemporaryError), e:
+                errmsg = '%s: %s' % (e.__class__.__name__, str(e))
                 self.request.response.setStatus(e.status)
                 self.dump_mail()
-                logger.warn(','.join(e.args))
-                return 'Fail: %s' % ','.join(e.args)
+                logger.warn(errmsg)
+                return 'Fail: %s' % errmsg
             except Exception, e:
                 #raise
-                self.request.response.setStatus(500, reason=','.join(e.args))
+                errmsg = '%s: %s' % (e.__class__.__name__, str(e))
+                self.request.response.setStatus(500, reason=errmsg)
                 self.dump_mail()
-                logger.error(','.join(e.args))
-                return 'Fail: %s' % ','.join(e.args)
+                logger.error(errmsg)
+                return 'Fail: %s' % errmsg
 
         self.request.response.setStatus(404)
         logger.warn('FAIL: Recipient address %s not found' % \
