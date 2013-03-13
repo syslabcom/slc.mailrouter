@@ -19,6 +19,7 @@ from logging import getLogger
 
 logger = getLogger('slc.mailrouter.browser')
 
+
 class InjectionView(BrowserView):
     def __call__(self):
         self.request.stdin.seek(0)
@@ -47,10 +48,10 @@ class InjectionView(BrowserView):
                 return 'Fail: %s' % errmsg
 
         self.request.response.setStatus(404)
-        logger.warn('FAIL: Recipient address %s not found' % \
-                (msg.get('X-Original-To') or msg.get('To')))
+        logger.warn('FAIL: Recipient address %s not found' %
+                    (msg.get('X-Original-To') or msg.get('To')))
         return 'FAIL: Recipient address %s not found' % \
-                (msg.get('X-Original-To') or msg.get('To'))
+            (msg.get('X-Original-To') or msg.get('To'))
 
     def dump_mail(self):
         tmpfile = NamedTemporaryFile(prefix='mailrouter-dump', delete=False)
@@ -58,6 +59,7 @@ class InjectionView(BrowserView):
         tmpfile.write(self.request.stdin.read())
         logger.info('Dumped mail to %s' % tmpfile.name)
         tmpfile.close()
+
 
 class FriendlyNameStorageView(BrowserView):
     def update(self):
@@ -76,6 +78,7 @@ class FriendlyNameStorageView(BrowserView):
         b_start = int(self.request.get('b_start', 0))
         return Batch(storage, b_size, b_start)
 
+
 class FriendlyNameAddView(BrowserView):
     addtemplate = ViewPageTemplateFile("add.pt")
 
@@ -90,7 +93,8 @@ class FriendlyNameAddView(BrowserView):
                     {'name': _(u'You must provide a friendly name.')})
             elif not re.match(r'^[a-zA-Z0-9_./-]+$', name):
                 errors.update(
-                    {'name': _(u'Forbidden characters in friendly name. Allowed characters: a-zA-Z0-9_./-')})
+                    {'name': _(u'Forbidden characters in friendly name. '
+                               'Allowed characters: a-zA-Z0-9_./-')})
             if not errors:
                 existing = storage.get(name)
                 if existing and not existing == target:
@@ -113,7 +117,7 @@ class FriendlyNameAddView(BrowserView):
     def displayMailTab(self):
         # Cannot mail into the portal root
         if self.context.restrictedTraverse(
-            '@@plone_context_state').is_portal_root():
+                '@@plone_context_state').is_portal_root():
             return False
         return IFolderish.providedBy(self.context) and \
             _checkPermission(AddPortalContent, self.context)
