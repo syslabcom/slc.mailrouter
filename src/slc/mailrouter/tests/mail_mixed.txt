@@ -1,0 +1,68 @@
+Date: Wed, 06 Jun 2012 17:32:23 +0100
+From: %(FROM)s
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20120430 Thunderbird/12.0.1
+MIME-Version: 1.0
+To: Manuel Reinhardt <reinhardt@syslab.com>
+Cc: %(FOLDERADDR)s
+X-Original-To: %(FOLDERADDR)s
+Message-ID: <2CCD84BF-AFFD-4B17-A594-330B3A3CD8E2@staralliance.com>
+Subject: Mail Upload Test Both
+Content-Type: multipart/mixed;
+ boundary="------------050300010503020604080804"
+
+This is a multi-part message in MIME format.
+--------------050300010503020604080804
+Content-Type: multipart/alternative;
+ boundary="------------050308040306040707070203"
+
+
+--------------050308040306040707070203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Test *31*
+
+bla bla
+
+-- 
+"If the machine produces tranquility it's right. If it disturbs you it's wrong until either the machine or your mind is changed."
+
+Manuel Reinhardt
+SYSLAB.COM GmbH, Landwehrstrasse 60-62, 80336 Munich, Germany
+http://www.syslab.com
+
+
+--------------050308040306040707070203
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    Test <b>31</b><br>
+    <br>
+    <small>bla bla</small><br>
+    <pre class="moz-signature" cols="72">-- 
+"If the machine produces tranquility it's right. If it disturbs you it's wrong until either the machine or your mind is changed."
+
+Manuel Reinhardt
+SYSLAB.COM GmbH, Landwehrstrasse 60-62, 80336 Munich, Germany
+<a class="moz-txt-link-freetext" href="http://www.syslab.com">http://www.syslab.com</a>
+</pre>
+  </body>
+</html>
+
+--------------050308040306040707070203--
+
+--------------050300010503020604080804
+Content-Type: image/gif;
+ name="pixel.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="pixel.gif"
+
+R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs=
+--------------050300010503020604080804--

@@ -1,0 +1,37 @@
+From: %(FROM)s
+To: %(FOLDERADDR)s
+X-Original-To: %(FOLDERADDR)s
+Message-ID: <2CCD84BF-AFFD-4B17-A594-330B3A3CD8E2@staralliance.com>
+Subject: Mail Upload Test Plain
+Content-Type: multipart/mixed;
+ boundary="------------050709000607090809080406"
+
+This is a multi-part message in MIME format.
+--------------050709000607090809080406
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Test *31*
+
+_bla bla_
+
+-- 
+"If the machine produces tranquility it's right. If it disturbs you it's 
+wrong until either the machine or your mind is changed."
+
+Manuel Reinhardt
+SYSLAB.COM GmbH, Landwehrstrasse 60-62, 80336 Munich, Germany
+http://www.syslab.com
+
+
+
+
+--------------050709000607090809080406
+Content-Type: image/gif;
+ name="pixel.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="pixel.gif"
+
+R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs=
+--------------050709000607090809080406--

@@ -1,0 +1,49 @@
+From: %(FROM)s
+To: %(FOLDERADDR)s
+X-Original-To: %(FOLDERADDR)s
+Message-ID: <2CCD84BF-AFFD-4B17-A594-330B3A3CD8E2@staralliance.com>
+Subject: Test Mail Upload Html
+Content-Type: multipart/mixed;
+ boundary="------------080901080601000705050903"
+
+This is a multi-part message in MIME format.
+--------------080901080601000705050903
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+  <p>Test</p>
+    <pre class="moz-signature" cols="72">-- 
+"If the machine produces tranquility it's right. If it disturbs you it's wrong until either the machine or your mind is changed."
+
+Manuel Reinhardt
+SYSLAB.COM GmbH, Landwehrstrasse 60-62, 80336 Munich, Germany
+<a class="moz-txt-link-freetext" href="http://www.syslab.com">http://www.syslab.com</a>
+</pre>
+  </body>
+</html>
+--------------080901080601000705050903
+Content-Type: image/gif;
+ name="pink_grad.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="pink_grad.gif"
+
+R0lGODdhEAAQAMZVAAQABAwADQ0ADBQAFRUAFBUAFR0AHB0AHSUAJS0ALS0ALi4ALTUANTUA
+NjYANTYANj0APT0APj4APT4APkUARkYARk4ATk4AT08ATk8AT1YAVlYAV1cAVl4AXl8AXl8A
+X2YAZ2cAZmcAZ28Ab28AcHAAb3cAd3cAeHgAd3gAeH8Af38AgIAAf4AAgIcAh4cAiIgAiI8A
+kJAAj5AAkJgAmJgAmZkAmKAAoKAAoaEAoKEAoagAqKgAqakAqKkAqbAAsbEAsLEAsbkAubkA
+uroAucEAwcEAwskAyckAysoAycoAytIA0dIA0toA2uIA4uIA4+sA6usA6/MA8vMA8/sA+wAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAEAAQAAAHy4BUUlBPTUtIRUJBPTc1My8qU1GFTEmJ
+QTw3NI8qJlFOTUxHRoo9OJsuLSkjoEyIipmbMCsnIyChloo+pzOzKCMiH65FREE+OjQxMKrA
+HhxKRkNAxza9KiklIs4WiT87yDIwLCYjIR8cFhWKOzmonSTa6BUSP7HhLb/aG+kRDDuNj1qQ
+MydPQgMFvFyoqBWiA4cMFfolQCCrUzMNFypMeLAAgYFe44Cdw6DxgQIEBwa8YCbCoQUKERxM
+PFAgQMhgG0hCYNDxAAEBAAIBADs=
+--------------020701040705030408020202--
