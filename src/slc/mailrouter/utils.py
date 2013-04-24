@@ -166,12 +166,12 @@ class MailToGroupRouter(BaseMailRouter):
 
         # Find the group
         group = self._findGroup(self.site, recipient)
-        logger.info('Resolved message with ID %s for group %s' %
-                    (msg.get('Message-ID'), group.getId()))
         if not group:
             # recipient not a group, we're not handlig this msg
             return False
 
+        logger.info('Resolved message with ID %s for group %s' %
+                    (msg.get('Message-ID'), group.getId()))
         self._sendMailToGroup(self.site, msg, group)
 
         return True
