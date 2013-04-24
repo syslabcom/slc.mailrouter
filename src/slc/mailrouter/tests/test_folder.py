@@ -8,6 +8,19 @@ from slc.mailrouter.testing import (
     PRIVILEGED_USER, UNPRIVILEGED_USER, UNKNOWN_USER,
     MAILROUTER_INTEGRATION_TESTING
 )
+from slc.mailrouter.exceptions import PermissionError
+
+msginfo_privileged = {'FROM': PRIVILEGED_USER,
+                      'FOLDERADDR': 'mailtest@mailrouter.com',
+                      }
+
+msginfo_unprivileged = {'FROM': UNPRIVILEGED_USER,
+                        'FOLDERADDR': 'mailtest@mailrouter.com',
+                        }
+
+msginfo_unknown = {'FROM': UNKNOWN_USER,
+                   'FOLDERADDR': 'mailtest@mailrouter.com',
+                   }
 
 
 class TestFolderRouter(unittest.TestCase):
@@ -16,6 +29,7 @@ class TestFolderRouter(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
+        self.folder = self.portal.get('mailtest')
         self.mailrouter = queryUtility(IMailRouter, name="mail")
 
     def send(self, tmpl_file, msginfo):
@@ -27,32 +41,27 @@ class TestFolderRouter(unittest.TestCase):
         return self.mailrouter(self.portal, msg)
 
     def test_privileged_plain(self):
-        msginfo = {'FROM': PRIVILEGED_USER,
-                   'FOLDERADDR': 'mailtest@mailrouter.com',
-                   }
-        folder = self.portal.get('mailtest')
-        result = self.send('mail_plain.txt', msginfo)
+        result = self.send('mail_plain.txt', msginfo_privileged)
         self.assertTrue(result, msg="Mail not accepted")
-        self.assertTrue('pixel.gif' in folder.objectIds(),
+        self.assertTrue('pixel.gif' in self.folder.objectIds(),
                         msg="Attachment not created")
 
     def test_privileged_html(self):
-        msginfo = {'FROM': PRIVILEGED_USER,
-                   'FOLDERADDR': 'mailtest@mailrouter.com',
-                   }
-        folder = self.portal.get('mailtest')
-        result = self.send('mail_html.txt', msginfo)
+        result = self.send('mail_html.txt', msginfo_privileged)
         self.assertTrue(result, msg="Mail not accepted")
-        self.assertTrue('pink_grad.gif' in folder.objectIds(),
+        self.assertTrue('pink_grad.gif' in self.folder.objectIds(),
                         msg="Attachment not created")
 
     def test_privileged_mixed(self):
-        msginfo = {'FROM': PRIVILEGED_USER,
-                   'FOLDERADDR': 'mailtest@mailrouter.com',
-                   }
-        folder = self.portal.get('mailtest')
-        result = self.send('mail_mixed.txt', msginfo)
+        result = self.send('mail_mixed.txt', msginfo_privileged)
         self.assertTrue(result, msg="Mail not accepted")
-        self.assertTrue('pixel.gif' in folder.objectIds(),
+        self.assertTrue('pixel.gif' in self.folder.objectIds(),
                         msg="Attachment not created")
 
+    def test_unprivileged(self):
+        self.assertRaises(PermissionError,
+                          self.send, 'mail_plain.txt', msginfo_unprivileged)
+
+    def test_unknown(self):
+        self.assertRaises(PermissionError,
+                          self.send, 'mail_plain.txt', msginfo_unknown)
