@@ -13,8 +13,6 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
-    <include file="routers.zcml" />
-
     <include package=".browser" />
 
 </configure>
