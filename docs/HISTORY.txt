@@ -4,7 +4,10 @@ Changelog
 1.10.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- don't include routers.zcml by default, but load it in the test layer
+  [reinhardt]
+- added tests [reinhardt]
+- don't log until we're sure we have a group [reinhardt]
 
 
 1.10.4 (2013-03-13)
