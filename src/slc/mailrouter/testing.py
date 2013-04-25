@@ -25,6 +25,10 @@ class MailRouterLayer(PloneSandboxLayer):
             'configure.zcml',
             package=slc.mailrouter,
         )
+        self.loadZCML(
+            'routers.zcml',
+            package=slc.mailrouter,
+        )
 
     def _createUsers(self, portal):
         acl_users = getToolByName(portal, 'acl_users')
