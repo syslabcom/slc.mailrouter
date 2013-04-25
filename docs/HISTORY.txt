@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.5 (unreleased)
+1.10.5 (2013-04-25)
 -------------------
 
 - don't include routers.zcml by default, but load it in the test layer
