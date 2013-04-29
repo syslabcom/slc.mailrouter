@@ -6,6 +6,8 @@ from plone.app.testing import PloneSandboxLayer
 from plone.app.testing.helpers import login, logout
 from plone.uuid.interfaces import IUUID
 from zope.component import queryUtility
+from zope.component.hooks import getSiteManager
+from zope.configuration import xmlconfig
 
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 
@@ -25,10 +27,14 @@ class MailRouterLayer(PloneSandboxLayer):
             'configure.zcml',
             package=slc.mailrouter,
         )
-        self.loadZCML(
-            'routers.zcml',
-            package=slc.mailrouter,
-        )
+        gsm = getSiteManager()
+        from Products.CMFCore.interfaces import IFolderish
+        from slc.mailrouter.interfaces import IMailImportAdapter
+        from slc.mailrouter.adapters import FolderAdapter
+        gsm.registerAdapter(
+            FolderAdapter,
+            required=(IFolderish, ),
+            provided=IMailImportAdapter)
 
     def _createUsers(self, portal):
         acl_users = getToolByName(portal, 'acl_users')

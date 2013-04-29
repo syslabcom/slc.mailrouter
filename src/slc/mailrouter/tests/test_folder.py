@@ -1,9 +1,8 @@
 import email
 import os
 import unittest
-from zope.component import queryUtility
 
-from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter.utils import MailToFolderRouter
 from slc.mailrouter.testing import (
     PRIVILEGED_USER, UNPRIVILEGED_USER, UNKNOWN_USER,
     MAILROUTER_INTEGRATION_TESTING
@@ -30,7 +29,7 @@ class TestFolderRouter(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         self.folder = self.portal.get('mailtest')
-        self.mailrouter = queryUtility(IMailRouter, name="mail")
+        self.mailrouter = MailToFolderRouter()
 
     def send(self, tmpl_file, msginfo):
         path = os.path.join(os.path.split(__file__)[0], tmpl_file)
