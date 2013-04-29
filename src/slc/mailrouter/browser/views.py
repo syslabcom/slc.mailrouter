@@ -20,6 +20,10 @@ from logging import getLogger
 logger = getLogger('slc.mailrouter.browser')
 
 
+def format_exception(e):
+    return '%s: %s' % (e.__class__.__name__, str(e))
+
+
 class InjectionView(BrowserView):
     def __call__(self):
         self.request.stdin.seek(0)
@@ -34,17 +38,17 @@ class InjectionView(BrowserView):
                 if router(aq_inner(self.context), msg):
                     return 'OK: Message accepted'
             except (PermanentError, TemporaryError), e:
-                errmsg = '%s: %s' % (e.__class__.__name__, str(e))
+                errmsg = format_exception(e)
                 self.request.response.setStatus(e.status)
-                self.dump_mail()
                 logger.warn(errmsg)
+                self.dump_mail()
                 return 'Fail: %s' % errmsg
             except Exception, e:
                 #raise
-                errmsg = '%s: %s' % (e.__class__.__name__, str(e))
+                errmsg = format_exception(e)
                 self.request.response.setStatus(500, reason=errmsg)
-                self.dump_mail()
                 logger.error(errmsg)
+                self.dump_mail()
                 return 'Fail: %s' % errmsg
 
         self.request.response.setStatus(404)
@@ -54,11 +58,16 @@ class InjectionView(BrowserView):
             (msg.get('X-Original-To') or msg.get('To'))
 
     def dump_mail(self):
-        tmpfile = NamedTemporaryFile(prefix='mailrouter-dump', delete=False)
-        self.request.stdin.seek(0)
-        tmpfile.write(self.request.stdin.read())
-        logger.info('Dumped mail to %s' % tmpfile.name)
-        tmpfile.close()
+        try:
+            tmpfile = NamedTemporaryFile(
+                prefix='mailrouter-dump', delete=False)
+            self.request.stdin.seek(0)
+            tmpfile.write(self.request.stdin.read())
+            logger.info('Dumped mail to %s' % tmpfile.name)
+            tmpfile.close()
+        except Exception, e:
+            logger.warn('Error while dumping mail: %s' %
+                        format_exception(e))
 
 
 class FriendlyNameStorageView(BrowserView):

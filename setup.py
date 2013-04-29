@@ -23,6 +23,10 @@ setup(
     include_package_data=True,
     package_data={'slc.mailrouter': ['sql/*']},
     zip_safe=False,
+    extras_require={
+      'test': ['mock',
+          ],
+    },
     install_requires=[
         'setuptools',
         'slc.smtp2zope',
