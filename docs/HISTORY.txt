@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.6 (unreleased)
+1.10.6 (2013-04-29)
 -------------------
 
 - safer dump_mail [reinhardt]
