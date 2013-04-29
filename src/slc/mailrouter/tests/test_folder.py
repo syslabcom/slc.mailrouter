@@ -1,25 +1,14 @@
-import email
-import os
 import unittest
 
 from slc.mailrouter.utils import MailToFolderRouter
 from slc.mailrouter.testing import (
-    PRIVILEGED_USER, UNPRIVILEGED_USER, UNKNOWN_USER,
-    MAILROUTER_INTEGRATION_TESTING
+    MAILROUTER_INTEGRATION_TESTING,
+    load_mail,
+    msginfo_privileged,
+    msginfo_unprivileged,
+    msginfo_unknown,
 )
 from slc.mailrouter.exceptions import PermissionError
-
-msginfo_privileged = {'FROM': PRIVILEGED_USER,
-                      'FOLDERADDR': 'mailtest@mailrouter.com',
-                      }
-
-msginfo_unprivileged = {'FROM': UNPRIVILEGED_USER,
-                        'FOLDERADDR': 'mailtest@mailrouter.com',
-                        }
-
-msginfo_unknown = {'FROM': UNKNOWN_USER,
-                   'FOLDERADDR': 'mailtest@mailrouter.com',
-                   }
 
 
 class TestFolderRouter(unittest.TestCase):
@@ -32,11 +21,7 @@ class TestFolderRouter(unittest.TestCase):
         self.mailrouter = MailToFolderRouter()
 
     def send(self, tmpl_file, msginfo):
-        path = os.path.join(os.path.split(__file__)[0], tmpl_file)
-        fd = open(path)
-        tmpl = fd.read()
-        mail = tmpl % msginfo
-        msg = email.message_from_string(mail)
+        msg = load_mail(tmpl_file, msginfo)
         return self.mailrouter(self.portal, msg)
 
     def test_privileged_plain(self):

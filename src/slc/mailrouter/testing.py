@@ -4,10 +4,11 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
 from plone.app.testing.helpers import login, logout
+import email
+import os
 from plone.uuid.interfaces import IUUID
 from zope.component import queryUtility
 from zope.component.hooks import getSiteManager
-from zope.configuration import xmlconfig
 
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 
@@ -15,6 +16,34 @@ PRIVILEGED_USER = "allowed@mailrouter.com"
 UNPRIVILEGED_USER = "forbidden@mailrouter.com"
 UNKNOWN_USER = "unknown@mailrouter.com"
 PASSWORD = "password"
+
+
+msginfo_privileged = {'FROM': PRIVILEGED_USER,
+                      'FOLDERADDR': 'mailtest@mailrouter.com',
+                      }
+
+msginfo_unprivileged = {'FROM': UNPRIVILEGED_USER,
+                        'FOLDERADDR': 'mailtest@mailrouter.com',
+                        }
+
+msginfo_unknown = {'FROM': UNKNOWN_USER,
+                   'FOLDERADDR': 'mailtest@mailrouter.com',
+                   }
+
+
+def load_mail(tmpl_file, msginfo):
+    fd = open_mailfile(tmpl_file)
+    tmpl = fd.read()
+    mail = tmpl % msginfo
+    msg = email.message_from_string(mail)
+    return msg
+
+
+def open_mailfile(tmpl_file):
+    testfolder = os.path.join(os.path.split(__file__)[0], 'tests')
+    path = os.path.join(testfolder, tmpl_file)
+    fd = open(path)
+    return fd
 
 
 class MailRouterLayer(PloneSandboxLayer):
