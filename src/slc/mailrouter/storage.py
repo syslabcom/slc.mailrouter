@@ -41,7 +41,10 @@ class FriendlyNameStorage(Persistent):
 
     def lookup(self, uid, _marker=None):
         """ Look up uid, return name. """
-        return self._reverse.get(uid, _marker).lower()
+        name = self._reverse.get(uid, _marker)
+        if name:
+            name = name.lower()
+        return name
 
     def __getitem__(self, key):
         return self._forward.items()[key]
