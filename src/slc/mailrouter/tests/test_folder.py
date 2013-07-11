@@ -7,6 +7,7 @@ from slc.mailrouter.testing import (
     msginfo_privileged,
     msginfo_unprivileged,
     msginfo_unknown,
+    msginfo_upper_case,
 )
 from slc.mailrouter.exceptions import PermissionError
 
@@ -49,3 +50,7 @@ class TestFolderRouter(unittest.TestCase):
     def test_unknown(self):
         self.assertRaises(PermissionError,
                           self.send, 'mail_plain.txt', msginfo_unknown)
+
+    def test_local_part_case_insensitive(self):
+        result = self.send('mail_plain.txt', msginfo_upper_case)
+        self.assertTrue(result, msg="Mail not accepted")

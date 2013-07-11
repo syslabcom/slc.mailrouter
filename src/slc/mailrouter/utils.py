@@ -63,7 +63,7 @@ class MailToFolderRouter(BaseMailRouter):
                      user.getProperty('email'),
                      recipient)
                     )
-        local_part = recipient.split('@')[0]
+        local_part = recipient.split('@')[0].lower()
 
         assert len(local_part) <= 50, \
             "local_part must have a reasonable length"

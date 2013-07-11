@@ -30,6 +30,10 @@ msginfo_unknown = {'FROM': UNKNOWN_USER,
                    'FOLDERADDR': 'mailtest@mailrouter.com',
                    }
 
+msginfo_upper_case = {'FROM': PRIVILEGED_USER,
+                      'FOLDERADDR': 'MAILTEST@mailrouter.com',
+                      }
+
 
 def load_mail(tmpl_file, msginfo):
     fd = open_mailfile(tmpl_file)
