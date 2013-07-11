@@ -109,7 +109,7 @@ class MailToFolderRouter(BaseMailRouter):
                 _("%s has insufficient privileges on %s" % (
                   user.getProperty('email'),
                   context.getId()
-                ))
+                  ))
             )
 
         # Defer actual work to an adapter
@@ -162,7 +162,7 @@ class MailToGroupRouter(BaseMailRouter):
                     (msg.get('Message-ID'),
                      user.getProperty('email'),
                      recipient)
-        )
+                    )
 
         # Find the group
         group = self._findGroup(self.site, recipient)
@@ -210,4 +210,3 @@ class AsyncMailToGroupRouter(MailToGroupRouter):
     def _sendMailToGroup(self, site, msg, group):
         async = queryUtility(IAsyncService, default=None, context=self)
         async.queueJob(sendMailToGroup, site, msg, group.id)
-

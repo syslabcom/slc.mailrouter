@@ -1,15 +1,15 @@
 from persistent import Persistent
 from zope.interface import implements
-from BTrees.OOBTree import OOBTree, OOSet
-from Products.CMFCore.utils import getToolByName
+from BTrees.OOBTree import OOBTree
 from slc.mailrouter.interfaces import IFriendlyNameStorage
+
 
 class FriendlyNameStorage(Persistent):
     implements(IFriendlyNameStorage)
 
     def __init__(self):
-        self._forward = OOBTree() # name -> uid
-        self._reverse = OOBTree() # uid -> name
+        self._forward = OOBTree()  # name -> uid
+        self._reverse = OOBTree()  # uid -> name
 
     def add(self, uid, name):
         """ Map name -> uid. """
@@ -48,4 +48,3 @@ class FriendlyNameStorage(Persistent):
 
     def __len__(self):
         return len(self._forward)
-

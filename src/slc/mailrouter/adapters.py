@@ -3,7 +3,7 @@ from zope.component import adapts, queryUtility
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
-from slc.mailrouter.interfaces import IMailImportAdapter
+
 
 class FolderAdapter(object):
     adapts(IFolderish)
@@ -28,8 +28,10 @@ class FolderAdapter(object):
 
             content_type = part.get_content_type()
             payload = part.get_payload(decode=1)
-            type_name = self.registry.findTypeName(file_name,
-                content_type, payload)
+            type_name = self.registry.findTypeName(
+                file_name,
+                content_type,
+                payload)
 
             # Normalise file_name into a safe id
             name = self.normalizer.normalize(file_name)

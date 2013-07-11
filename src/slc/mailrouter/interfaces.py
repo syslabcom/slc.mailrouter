@@ -1,14 +1,15 @@
-from zope.schema import TextLine
 from zope.interface import Interface
-from slc.mailrouter import MessageFactory as _
+
 
 class IMailRouterLayer(Interface):
     """Marker Interface used by as BrowserLayer
     """
 
+
 class IMailImportAdapter(Interface):
-    def add( message):
+    def add(message):
         """ Add message to context. """
+
 
 class IMappingStorage(Interface):
     """ Stores mappings from names to targets. """
@@ -31,9 +32,11 @@ class IMappingStorage(Interface):
     def __len__():
         """ Return the number of items in storage. """
 
+
 class IFriendlyNameStorage(IMappingStorage):
     """ A place to store the mapping of friendly names to uids, allowing
         a user to email friendlyname@ourdomain instead of uid@ourdomain. """
+
 
 class IMailRouter(Interface):
     """ Utilities that act as mail routers implement this interface. """

@@ -32,7 +32,7 @@ class InjectionView(BrowserView):
         # Get all registered mail routers. Sort by priority, then
         # call them until it is handled
         routers = getAllUtilitiesRegisteredFor(IMailRouter)
-        routers.sort(lambda x,y: cmp(x.priority(), y.priority()))
+        routers.sort(lambda x, y: cmp(x.priority(), y.priority()))
         for router in routers:
             try:
                 if router(aq_inner(self.context), msg):
@@ -75,8 +75,7 @@ class FriendlyNameStorageView(BrowserView):
         """ Called from the template, it deletes any mappings
             specified on the request. """
         remove = self.request.get('remove', ())
-        storages = [queryUtility(IFriendlyNameStorage),
-                   ]
+        storages = [queryUtility(IFriendlyNameStorage), ]
         for item in remove:
             for storage in storages:
                 storage.remove(item)
@@ -110,12 +109,12 @@ class FriendlyNameAddView(BrowserView):
                     errors.update(
                         {'name': _(u'This name is already in use.')})
                 else:
-                    storage.remove(target) # No effect if target isn't mapped
+                    storage.remove(target)  # No effect if target isn't mapped
                     storage.add(target, name)
                     IStatusMessage(self.request).add(_(u"Mail route enabled."))
 
         self.request['errors'] = errors
-        if not errors and self.request.has_key('redirect'):
+        if not errors and 'redirect' in self.request:
             return self.request.RESPONSE.redirect(self.request['redirect'])
         return self.addtemplate()
 
