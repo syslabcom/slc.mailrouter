@@ -1,5 +1,10 @@
 import email
 import re
+import sys
+from tempfile import NamedTemporaryFile
+import traceback
+from StringIO import StringIO
+
 from Acquisition import aq_inner
 from zope.component import queryUtility, getAllUtilitiesRegisteredFor
 from Products.Five import BrowserView
@@ -14,14 +19,22 @@ from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter.exceptions import PermanentError, TemporaryError
 from slc.mailrouter import MessageFactory as _
-from tempfile import NamedTemporaryFile
+
 from logging import getLogger
 
 logger = getLogger('slc.mailrouter.browser')
 
 
-def format_exception(e):
+def get_exception_message(e):
     return '%s: %s' % (e.__class__.__name__, str(e))
+
+
+def get_exception_log_entry(e):
+    exc_type, val, tb = sys.exc_info()
+    tb_str = StringIO()
+    traceback.print_tb(tb, file=tb_str)
+    return '{0}: {1}\nTraceback:\n{2}{0}: {1}'.format(
+        e.__class__.__name__, str(e), tb_str.getvalue())
 
 
 class InjectionView(BrowserView):
@@ -38,16 +51,18 @@ class InjectionView(BrowserView):
                 if router(aq_inner(self.context), msg):
                     return 'OK: Message accepted'
             except (PermanentError, TemporaryError), e:
-                errmsg = format_exception(e)
+                errmsg = get_exception_message(e)
                 self.request.response.setStatus(e.status)
-                logger.warn(errmsg)
+                logmsg = get_exception_log_entry(e)
+                logger.warn(logmsg)
                 self.dump_mail()
                 return 'Fail: %s' % errmsg
             except Exception, e:
                 #raise
-                errmsg = format_exception(e)
+                errmsg = get_exception_message(e)
                 self.request.response.setStatus(500, reason=errmsg)
-                logger.error(errmsg)
+                logmsg = get_exception_log_entry(e)
+                logger.error(logmsg)
                 self.dump_mail()
                 return 'Fail: %s' % errmsg
 
@@ -65,9 +80,9 @@ class InjectionView(BrowserView):
             tmpfile.write(self.request.stdin.read())
             logger.info('Dumped mail to %s' % tmpfile.name)
             tmpfile.close()
-        except Exception, e:
+        except Exception as e:
             logger.warn('Error while dumping mail: %s' %
-                        format_exception(e))
+                        get_exception_log_entry(e))
 
 
 class FriendlyNameStorageView(BrowserView):
