@@ -15,4 +15,14 @@
 
     <include package=".browser" />
 
+    <genericsetup:upgradeSteps
+        source="*"
+        destination="2"
+        profile="slc.mailrouter:default">
+        <genericsetup:upgradeStep
+            title="Convert storage entries to lower case"
+            description="Convert entries of FriendlyNameStorage to lower case to allow case insensitivity regarding incoming email addresses"
+            handler=".upgrades.convert_storage_entries_to_lower_case"/>
+    </genericsetup:upgradeSteps>
+
 </configure>
