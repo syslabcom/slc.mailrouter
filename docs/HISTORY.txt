@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.7 (unreleased)
+1.10.7 (2013-07-23)
 -------------------
 
 - made local_part case insensitive, refs #7976 [reinhardt]
