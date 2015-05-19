@@ -1,3 +1,4 @@
 *.pyc
 Paste*
 *egg-info
+.eggs
