@@ -32,7 +32,6 @@ setup(
     install_requires=[
         'setuptools',
         'plone.api',
-        'slc.smtp2zope',
         'Products.CMFPlone',
     ],
     entry_points="""
