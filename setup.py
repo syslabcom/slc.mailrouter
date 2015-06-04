@@ -24,11 +24,14 @@ setup(
     package_data={'slc.mailrouter': ['sql/*']},
     zip_safe=False,
     extras_require={
-      'test': ['mock',
-          ],
+        'test': [
+            'mock',
+            'plone.app.testing',
+        ],
     },
     install_requires=[
         'setuptools',
+        'plone.api',
         'slc.smtp2zope',
         'Products.CMFPlone',
     ],
@@ -36,6 +39,6 @@ setup(
         [z3c.autoinclude.plugin]
         target = plone
     """,
-    setup_requires=["PasteScript"],
-    paster_plugins = ["ZopeSkel"],
+    setup_requires=[],
+    paster_plugins = [],
     )

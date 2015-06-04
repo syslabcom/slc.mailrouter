@@ -3,10 +3,13 @@ import email
 from copy import copy
 from AccessControl.SecurityManagement import newSecurityManager, \
     getSecurityManager
+from zope.component import getUtility
 from zope.component import queryUtility
 from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
+from plone.registry.interfaces import IRegistry
+from plone import api
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import (PermissionError, NotFoundError,
@@ -23,6 +26,47 @@ logger = getLogger('slc.mailrouter.utils')
 UIDRE = re.compile('^[0-9a-f-]+$')
 
 
+def get_use_email_as_login():
+    try:
+        from Products.CMFPlone.interfaces import ISecuritySchema
+        version = 5
+    except ImportError:
+        version = 4
+
+    if version == 5:
+        registry = getUtility(IRegistry)
+        security_settings = registry.forInterface(
+            ISecuritySchema, prefix='plone')
+        use_email_as_login = security_settings.use_email_as_login
+    else:
+        portal_properties = api.portal.get_tool(name='portal_properties')
+        site_properties = portal_properties.site_properties
+        use_email_as_login = site_properties.getProperty('use_email_as_login')
+
+    return use_email_as_login
+
+
+def get_user_by_email(email, pm=None):
+    user_id = ''
+    user = None
+    use_email_as_login = get_use_email_as_login()
+    pm = api.portal.get_tool(name='portal_membership')
+
+    try:
+        # avoid fuzzy searchMembers if we can
+        if use_email_as_login:
+            user = pm.getMemberById(email).getUser()
+        else:
+            results = pm.searchMembers('email', email)
+            results = [r for r in results
+                       if r['email'] == email]
+            user_id = results[0]['username']
+            user = pm.getMemberById(user_id).getUser()
+    except (IndexError, AttributeError):
+        return None
+    return user
+
+
 class BaseMailRouter(object):
     def __call__(self, site, msg):
         self.site = site
@@ -34,22 +78,12 @@ class BaseMailRouter(object):
         sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
         recipient = email.Utils.parseaddr(msg.get('X-Original-To'))[1]
 
-        pm = getToolByName(self.site, 'portal_membership')
-
-        # WARNING: Assuming login happens through email
-        # Todo: Check / amend this
-        user = None
-        try:
-            #user_id = pm.searchMembers('email', sender)[0]['username']
-            user = pm.getMemberById(sender_return_path).getUser()
-        except (IndexError, AttributeError):
-            try:
-                #user_id = pm.searchMembers('email', sender)[0]['username']
-                user = pm.getMemberById(sender_from).getUser()
-            except (IndexError, AttributeError):
-                raise PermissionError(_("No permitted sender address: %s, %s" %
-                                      (sender_return_path, sender_from)))
-        #user = pm.getMemberById(user_id).getUser()
+        user = get_user_by_email(sender_return_path)
+        if not user:
+            user = get_user_by_email(sender_from)
+        if not user:
+            raise PermissionError(_("No permitted sender address: %s, %s" %
+                                  (sender_return_path, sender_from)))
 
         return self.deliver(msg, user, recipient)
 
@@ -70,7 +104,7 @@ class MailToFolderRouter(BaseMailRouter):
 
         # Find the right context. Do that by looking up local_part
         # in our local friendly-name storage, and if not found, check
-        # if it looks like a uid. Then look up the uid in the uid_catalog.
+        # if it looks like a uid. Then look up the uid.
         storage = queryUtility(IFriendlyNameStorage)
         uid = storage.get(local_part, None)
         if uid is None and UIDRE.match(local_part) is not None:
@@ -81,25 +115,20 @@ class MailToFolderRouter(BaseMailRouter):
             # this is not something we can handle.
             return False
 
-        uidcat = getToolByName(self.site, 'uid_catalog')
-        brains = uidcat(UID=uid)
-        if not brains:
+        # Drop privileges to the right user
+        self.acl_users = getToolByName(self.site, 'acl_users')
+        newSecurityManager(None, user.__of__(self.acl_users))
+
+        context = api.content.get(UID=uid)
+        if not context:
             raise NotFoundError(_("Folder not found"))
 
-        context = brains[0].getObject()
-        if not context:
-            raise NotFoundError(_("Target %s found, but getObject failed" %
-                                  brains[0]['getId']))
         if not IFolderish.providedBy(context):
             raise NotFoundError(
                 _("Target %s is not a folder" % context.getId())
             )
 
         result = False
-
-        # Drop privileges to the right user
-        self.acl_users = getToolByName(self.site, 'acl_users')
-        newSecurityManager(None, user.__of__(self.acl_users))
 
         # Check permissions
         if not getSecurityManager().checkPermission(

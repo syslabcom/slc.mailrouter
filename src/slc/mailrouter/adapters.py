@@ -1,6 +1,7 @@
 from datetime import datetime
 from zope.component import adapts, queryUtility
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
+from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 
@@ -44,7 +45,14 @@ class FolderAdapter(object):
 
             self.context.invokeFactory(type_name, name)
             obj = self.context._getOb(name)
-            obj.getPrimaryField().getMutator(obj)(payload)
+            info = IPrimaryFieldInfo(obj, None)
+            if info is not None:
+                info.field.set(obj, payload)
+            else:
+                if hasattr(obj, 'getPrimaryField'):
+                    obj.getPrimaryField().getMutator(obj)(payload)
+                else:
+                    raise AttributeError('Could not get primary field')
             obj.setTitle(file_name)
             obj.reindexObject(idxs='Title')
             return True

@@ -7,6 +7,7 @@ from StringIO import StringIO
 
 from Acquisition import aq_inner
 from zope.component import queryUtility, getAllUtilitiesRegisteredFor
+from zope.interface import alsoProvides
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFPlone.PloneBatch import Batch
@@ -49,6 +50,12 @@ class InjectionView(BrowserView):
         for router in routers:
             try:
                 if router(aq_inner(self.context), msg):
+                    try:
+                        from plone.protect.interfaces import IDisableCSRFProtection
+                    except ImportError:
+                        pass
+                    else:
+                        alsoProvides(self.request, IDisableCSRFProtection)
                     return 'OK: Message accepted'
             except (PermanentError, TemporaryError), e:
                 errmsg = get_exception_message(e)

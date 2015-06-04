@@ -1,4 +1,5 @@
 from Products.CMFCore.utils import getToolByName
+from plone import api
 from plone.app.testing import applyProfile
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
@@ -60,6 +61,16 @@ class MailRouterLayer(PloneSandboxLayer):
             'configure.zcml',
             package=slc.mailrouter,
         )
+        try:
+            import plone.app.contenttypes
+        except ImportError:
+            self.have_pacontenttypes = False
+        else:
+            self.have_pacontenttypes = True
+            self.loadZCML(
+                'configure.zcml',
+                package=plone.app.contenttypes,
+            )
         gsm = getSiteManager()
         from Products.CMFCore.interfaces import IFolderish
         from slc.mailrouter.interfaces import IMailImportAdapter
@@ -83,6 +94,11 @@ class MailRouterLayer(PloneSandboxLayer):
             [],
             [],
         )
+        pm = api.portal.get_tool(name='portal_membership')
+        pm.getMemberById(PRIVILEGED_USER).setMemberProperties(
+            {'email': PRIVILEGED_USER})
+        pm.getMemberById(UNPRIVILEGED_USER).setMemberProperties(
+            {'email': UNPRIVILEGED_USER})
 
     def _createContent(self, portal):
         login(portal, PRIVILEGED_USER)
@@ -94,6 +110,8 @@ class MailRouterLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'slc.mailrouter:default')
+        if self.have_pacontenttypes:
+            applyProfile(portal, 'plone.app.contenttypes:default')
         self._createUsers(portal)
         self._createContent(portal)
 
