@@ -2,3 +2,4 @@
 Paste*
 *egg-info
 .eggs
+.*.sw[op]
