@@ -65,7 +65,7 @@ class InjectionView(BrowserView):
                 self.dump_mail()
                 return 'Fail: %s' % errmsg
             except Exception, e:
-                #raise
+                # raise
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(500, reason=errmsg)
                 logmsg = get_exception_log_entry(e)
@@ -74,10 +74,10 @@ class InjectionView(BrowserView):
                 return 'Fail: %s' % errmsg
 
         self.request.response.setStatus(404)
-        logger.warn('FAIL: Recipient address %s not found' %
-                    (msg.get('X-Original-To') or msg.get('To')))
-        return 'FAIL: Recipient address %s not found' % \
-            (msg.get('X-Original-To') or msg.get('To'))
+        logger.warn('FAIL: Recipient address X-Original-To: %s not found' %
+                    (msg.get('X-Original-To')))
+        return 'FAIL: Recipient address X-Original-To: %s not found' % \
+            (msg.get('X-Original-To'))
 
     def dump_mail(self):
         try:

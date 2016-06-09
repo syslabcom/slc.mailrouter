@@ -78,6 +78,10 @@ class BaseMailRouter(object):
         sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
         recipient = email.Utils.parseaddr(msg.get('X-Original-To'))[1]
 
+        if not recipient:
+            logger.info('BaseMailRouter could not identify a recipient.' +
+                        'No X-Original-To header found.'
+                        )
         user = get_user_by_email(sender_return_path)
         if not user:
             user = get_user_by_email(sender_from)
