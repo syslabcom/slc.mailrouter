@@ -4,7 +4,9 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Refactor storing the friendly name so it can be called independently from
+  the view
+  [pilz]
 
 
 2.0 (2016-06-28)
