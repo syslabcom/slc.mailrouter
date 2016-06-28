@@ -114,6 +114,7 @@ class FriendlyNameAddView(BrowserView):
     addtemplate = ViewPageTemplateFile("add.pt")
 
     def __call__(self):
+        errors = {}
         if self.request.get('form.submitted', None) is not None:
             errors = store_name(self.context, self.request.get('name', ''))
 
