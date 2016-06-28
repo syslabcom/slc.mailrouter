@@ -24,3 +24,11 @@ utility and registering it under the interface
 slc.mailrouter.interfaces.IMailRouter. Such mail router utilities are called
 one after the other until one of them reports that the message was successfully
 delivered. In this way it mirrors the way exim's routers work.
+
+
+Credits
+-------
+
+Izak Burger <isburger@gmail.com> 
+Manuel Reinhardt <reinhardt@syslab.com>
+
