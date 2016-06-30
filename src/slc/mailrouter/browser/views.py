@@ -1,5 +1,4 @@
 import email
-import re
 import sys
 from tempfile import NamedTemporaryFile
 import traceback
@@ -20,6 +19,7 @@ from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter.exceptions import PermanentError, TemporaryError
 from slc.mailrouter import MessageFactory as _
+from slc.mailrouter.utils import store_name
 
 from logging import getLogger
 
@@ -51,7 +51,8 @@ class InjectionView(BrowserView):
             try:
                 if router(aq_inner(self.context), msg):
                     try:
-                        from plone.protect.interfaces import IDisableCSRFProtection
+                        from plone.protect.interfaces import \
+                            IDisableCSRFProtection
                     except ImportError:
                         pass
                     else:
@@ -114,29 +115,12 @@ class FriendlyNameAddView(BrowserView):
 
     def __call__(self):
         errors = {}
-        storage = queryUtility(IFriendlyNameStorage)
         if self.request.get('form.submitted', None) is not None:
-            name = self.request.get('name', '')
-            target = IUUID(self.context)
-            if not name:
-                errors.update(
-                    {'name': _(u'You must provide a friendly name.')})
-            elif not re.match(r'^[a-zA-Z0-9_./-]+$', name):
-                errors.update(
-                    {'name': _(u'Forbidden characters in friendly name. '
-                               'Allowed characters: a-zA-Z0-9_./-')})
-            if not errors:
-                existing = storage.get(name)
-                if existing and not existing == target:
-                    errors.update(
-                        {'name': _(u'This name is already in use.')})
-                else:
-                    storage.remove(target)  # No effect if target isn't mapped
-                    storage.add(target, name)
-                    IStatusMessage(self.request).add(_(u"Mail route enabled."))
+            errors = store_name(self.context, self.request.get('name', ''))
 
         self.request['errors'] = errors
         if not errors and 'redirect' in self.request:
+            IStatusMessage(self.request).add(_(u"Mail route enabled."))
             return self.request.RESPONSE.redirect(self.request['redirect'])
         return self.addtemplate()
 

@@ -9,6 +9,7 @@ from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from plone.registry.interfaces import IRegistry
+from plone.uuid.interfaces import IUUID
 from plone import api
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
@@ -218,7 +219,7 @@ def send_batched(context, msg, mto):
     msg_out = copy(msg)
     del msg_out['Return-Path']
     del msg_out['X-Original-To']
-    for batch in [mto[i:i+50] for i in range(0, len(mto), 50)]:
+    for batch in [mto[i:i + 50] for i in range(0, len(mto), 50)]:
         context.MailHost._send(mfrom, batch, msg_out.as_string())
         logger.info("Distributing group mail for '%s' to recipients %s" % (
             msg['X-Original-To'], ', '.join(batch))
@@ -243,3 +244,26 @@ class AsyncMailToGroupRouter(MailToGroupRouter):
     def _sendMailToGroup(self, site, msg, group):
         async = queryUtility(IAsyncService, default=None, context=self)
         async.queueJob(sendMailToGroup, site, msg, group.id)
+
+
+def store_name(context, name):
+    errors = {}
+    storage = queryUtility(IFriendlyNameStorage)
+    target = IUUID(context)
+    if not name:
+        errors.update(
+            {'name': _(u'You must provide a friendly name.')})
+    elif not re.match(r'^[a-zA-Z0-9_./-]+$', name):
+        errors.update(
+            {'name': _(u'Forbidden characters in friendly name. '
+                       'Allowed characters: a-zA-Z0-9_./-')})
+    if not errors:
+        existing = storage.get(name)
+        if existing and not existing == target:
+            errors.update(
+                {'name': _(u'This name is already in use.')})
+        else:
+            storage.remove(target)  # No effect if target isn't mapped
+            storage.add(target, name)
+
+    return errors
