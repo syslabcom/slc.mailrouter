@@ -123,7 +123,6 @@ class MailToFolderRouter(BaseMailRouter):
         # Drop privileges to the right user
         self.acl_users = getToolByName(self.site, 'acl_users')
         newSecurityManager(None, user.__of__(self.acl_users))
-
         context = api.content.get(UID=uid)
         if not context:
             raise NotFoundError(_("Folder not found"))
