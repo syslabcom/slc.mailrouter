@@ -13,6 +13,14 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="slc.mailrouter"
+      directory="profiles/uninstall"
+      description="Uninstall Mail Router Default Setup"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
     <include package=".browser" />
 
     <genericsetup:upgradeSteps
