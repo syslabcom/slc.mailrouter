@@ -48,6 +48,8 @@ def get_use_email_as_login():
 
 
 def get_user_by_email(email, pm=None):
+    if not email:
+        return
     user_id = ''
     user = None
     use_email_as_login = get_use_email_as_login()
@@ -75,6 +77,7 @@ class BaseMailRouter(object):
 
         sender_from = msg.get('From')
         sender_return_path = msg.get('Return-Path')
+
         sender_from = email.Utils.parseaddr(sender_from)[1]
         sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
         recipient = email.Utils.parseaddr(msg.get('X-Original-To'))[1]
