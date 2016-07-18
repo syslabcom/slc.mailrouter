@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.3 (unreleased)
+2.0.3 (2016-07-18)
 ------------------
 
 - Don't resolve admin emergency user if no email is given
