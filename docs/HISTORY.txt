@@ -4,7 +4,7 @@ Changelog
 2.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Manifest fix [reinhardt]
 
 
 2.0.4 (2016-12-16)
