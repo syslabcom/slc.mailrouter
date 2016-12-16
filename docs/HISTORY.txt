@@ -4,7 +4,7 @@ Changelog
 2.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Tweaked markup to work better with quaive styling [reinhardt]
 
 
 2.0.3 (2016-07-18)

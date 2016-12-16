@@ -22,8 +22,10 @@
                        tal:content="python: mapping[1]">target</a>
                 </td>
                 <td>
-                    <input type="checkbox" name="remove:list"
-                           tal:attributes="value python:mapping[1]" />
+                    <label class="pat-checklist">
+                        <input type="checkbox" name="remove:list"
+                               tal:attributes="value python:mapping[1]" />
+                    </label>
                 </td>
             </tr>
         </table>
