@@ -4,7 +4,9 @@ Changelog
 2.0.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Log PermissionError as info. This is usually not something requiring the
+  admin's attention. Refs #15490
+  [reinhardt]
 
 
 2.0.5 (2016-12-16)

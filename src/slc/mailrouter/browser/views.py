@@ -17,7 +17,9 @@ from Products.CMFCore.permissions import AddPortalContent
 from plone.uuid.interfaces import IUUID
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter
-from slc.mailrouter.exceptions import PermanentError, TemporaryError
+from slc.mailrouter.exceptions import PermanentError
+from slc.mailrouter.exceptions import PermissionError
+from slc.mailrouter.exceptions import TemporaryError
 from slc.mailrouter import MessageFactory as _
 from slc.mailrouter.utils import store_name
 
@@ -58,6 +60,12 @@ class InjectionView(BrowserView):
                     else:
                         alsoProvides(self.request, IDisableCSRFProtection)
                     return 'OK: Message accepted'
+            except PermissionError, e:
+                errmsg = get_exception_message(e)
+                self.request.response.setStatus(e.status)
+                logmsg = get_exception_log_entry(e)
+                logger.info(logmsg)
+                return 'Fail: %s' % errmsg
             except (PermanentError, TemporaryError), e:
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(e.status)
