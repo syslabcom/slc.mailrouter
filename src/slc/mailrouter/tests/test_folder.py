@@ -19,6 +19,9 @@ class TestFolderRouter(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         self.folder = self.portal.get('mailtest')
+        # XXX Stupid workaround for a conflict with
+        # PloneintranetuserprofileLayer
+        self.portal.portal_catalog.indexObject(self.folder)
         self.mailrouter = MailToFolderRouter()
 
     def send(self, tmpl_file, msginfo):
