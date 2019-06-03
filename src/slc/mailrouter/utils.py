@@ -50,8 +50,17 @@ def get_use_email_as_login():
 def get_user_by_email(email, pm=None):
     if not email:
         return
-    user_id = ''
-    user = None
+
+    # Try the membrane catalog if we can
+    mt = api.portal.get_tool("membrane_tool")
+    if mt and "email" in mt._catalog.indexes:
+        results = mt(email=email)
+        for result in results:
+            if result.getUserName:
+                member = api.user.get(username=result.getUserName)
+                if member:
+                    return member.getUser()
+
     use_email_as_login = get_use_email_as_login()
     pm = api.portal.get_tool(name='portal_membership')
 
