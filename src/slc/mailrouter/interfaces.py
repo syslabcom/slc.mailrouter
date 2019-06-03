@@ -1,3 +1,5 @@
+# coding=utf-8
+from zope.interface import Attribute
 from zope.interface import Interface
 
 
@@ -48,4 +50,16 @@ class IMailRouter(Interface):
 
     def priority(self):
         """ Return priority to determine the order in which routers are called.
+        """
+
+
+class IEmailToUser(Interface):
+    """ An adapter that resolves a user object given an email address
+    """
+    order = Attribute(
+        "Used to declare the priority with which the adapter its executed"
+    )
+
+    def __call__(email):
+        """ Resolve a user that has the given email
         """
