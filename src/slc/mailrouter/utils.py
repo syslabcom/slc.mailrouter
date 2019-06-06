@@ -3,6 +3,7 @@ import email
 from copy import copy
 from AccessControl.SecurityManagement import newSecurityManager, \
     getSecurityManager
+from zope.component import getAdapters
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.interface import implements
@@ -11,6 +12,7 @@ from Products.CMFCore.interfaces import IFolderish
 from plone.registry.interfaces import IRegistry
 from plone.uuid.interfaces import IUUID
 from plone import api
+from slc.mailrouter.interfaces import IEmailToUser
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
 from slc.mailrouter.exceptions import (PermissionError, NotFoundError,
@@ -50,8 +52,21 @@ def get_use_email_as_login():
 def get_user_by_email(email, pm=None):
     if not email:
         return
-    user_id = ''
-    user = None
+
+    # Try to look for specific adapters that can help us resove a user from the
+    # given email
+    adapters = sorted(
+        (
+            adapter
+            for name, adapter in getAdapters([api.portal.get()], IEmailToUser)
+        ),
+        key=lambda adapter: adapter.order,
+    )
+    for adapter in adapters:
+        user = adapter(email)
+        if user:
+            return user
+
     use_email_as_login = get_use_email_as_login()
     pm = api.portal.get_tool(name='portal_membership')
 
