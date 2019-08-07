@@ -6,7 +6,7 @@ env:
 install:
   - mkdir -p buildout-cache/downloads
   - cp requirements-$PLONE_VERSION.x.txt requirements.txt
-  - bin/pip install -r requirements.txt
+  - python bootstrap.py
   - bin/buildout -c travis-$PLONE_VERSION.x.cfg
 script:
   - bin/test
