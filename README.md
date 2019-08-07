@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/syslabcom/slc.mailrouter.svg?branch=master)](https://travis-ci.org/syslabcom/slc.mailrouter)
+
 Introduction
 ============
 
