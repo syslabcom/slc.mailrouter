@@ -10,7 +10,7 @@ install:
   - bin/buildout -c travis-$PLONE_VERSION.x.cfg
 script:
   - bin/test
-after_success:
-  - bin/coverage-report
-  - pip install -q coveralls
-  - coveralls
+#after_success:
+#  - bin/coverage-report
+#  - pip install -q coveralls
+#  - coveralls
