@@ -6,7 +6,7 @@ setup(
     name='slc.mailrouter',
     version=version,
     description="Framework for handling email in zope",
-    long_description=open("README.txt").read(),
+    long_description=open("README.md").read(),
     # Get more strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Programming Language :: Python",
