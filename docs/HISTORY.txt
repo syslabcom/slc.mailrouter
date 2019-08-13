@@ -1,10 +1,10 @@
 Changelog
 =========
 
-2.1.1 (unreleased)
+2.1.1 (2019-08-13)
 ------------------
 
-- Nothing changed yet.
+- Default `To` address if X-Original-To is not given [b4oshany]
 
 
 2.1.0 (2019-06-06)
