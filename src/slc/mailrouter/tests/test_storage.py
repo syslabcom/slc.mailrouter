@@ -11,7 +11,7 @@ class TestStorage(unittest.TestCase):
             len(storage), 1,
         )
         self.assertEqual(
-            storage["test name"], "abcdefghijkl0123456789",
+            storage[0], ("test name", "abcdefghijkl0123456789"),
         )
         self.assertEqual(
             storage.get("test name"), "abcdefghijkl0123456789",
@@ -22,6 +22,6 @@ class TestStorage(unittest.TestCase):
         self.assertIsNone(storage.get("who?"),)
         storage.remove("abcdefghijkl0123456789")
         self.assertRaises(
-            KeyError, storage.__getitem__, "test name",
+            IndexError, storage.__getitem__, 0,
         )
         self.assertIsNone(storage.get("test name"),)
