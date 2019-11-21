@@ -3,6 +3,7 @@ import sys
 from tempfile import NamedTemporaryFile
 import traceback
 from six import StringIO
+from io import TextIOWrapper
 
 from Acquisition import aq_inner
 from zope.component import queryUtility, getAllUtilitiesRegisteredFor
@@ -10,6 +11,8 @@ from zope.interface import alsoProvides
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFPlone.PloneBatch import Batch
+from Products.CMFPlone.utils import safe_bytes
+from Products.CMFPlone.utils import safe_nativestring
 from Products.statusmessages.interfaces import IStatusMessage
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import _checkPermission
@@ -36,14 +39,17 @@ def get_exception_log_entry(e):
     exc_type, val, tb = sys.exc_info()
     tb_str = StringIO()
     traceback.print_tb(tb, file=tb_str)
-    return '{0}: {1}\nTraceback:\n{2}{0}: {1}'.format(
+    return safe_nativestring(
+        '{0}: {1}\nTraceback:\n{2}{0}: {1}'.format(
         e.__class__.__name__, str(e), tb_str.getvalue())
+    )
 
 
 class InjectionView(BrowserView):
     def __call__(self):
         self.request.stdin.seek(0)
-        msg = email.message_from_file(self.request.stdin)
+        stream = TextIOWrapper(self.request.stdin, encoding='utf-8')
+        msg = email.message_from_file(stream)
 
         # Get all registered mail routers. Sort by priority, then
         # call them until it is handled
@@ -83,8 +89,9 @@ class InjectionView(BrowserView):
                 return 'Fail: %s' % errmsg
 
         self.request.response.setStatus(404)
+        recipient = safe_nativestring(msg.get('X-Original-To'))
         logger.warn('FAIL: Recipient address X-Original-To: %s not found' %
-                    (msg.get('X-Original-To')))
+                    (recipient))
         return 'FAIL: Recipient address X-Original-To: %s not found' % \
             (msg.get('X-Original-To'))
 
@@ -93,7 +100,7 @@ class InjectionView(BrowserView):
             tmpfile = NamedTemporaryFile(
                 prefix='mailrouter-dump', delete=False)
             self.request.stdin.seek(0)
-            tmpfile.write(self.request.stdin.read().encode("utf-8"))
+            tmpfile.write(safe_bytes(self.request.stdin.read()))
             logger.info('Dumped mail to %s' % tmpfile.name)
             tmpfile.close()
         except Exception as e:

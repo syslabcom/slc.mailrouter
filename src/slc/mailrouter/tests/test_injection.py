@@ -1,11 +1,13 @@
+import six
 import unittest
 from mock import Mock
 from Testing.makerequest import makerequest
 from zope.component.hooks import getSiteManager
 from zope.publisher.http import HTTPResponse
-from six import StringIO
+from io import BytesIO
+from io import StringIO
 from logging import getLogger, StreamHandler, INFO
-from Products.CMFPlone.utils import safe_unicode
+from Products.CMFPlone.utils import safe_bytes
 
 from slc.mailrouter.testing import (
     MAILROUTER_INTEGRATION_TESTING,
@@ -21,7 +23,10 @@ class TestInjection(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        self.log = StringIO()
+        if six.PY2:
+            self.log = BytesIO()
+        else:
+            self.log = StringIO()
         browser_logger = getLogger('slc.mailrouter.browser')
         browser_logger.setLevel(INFO)
         browser_logger.addHandler(StreamHandler(self.log))
@@ -45,9 +50,8 @@ class TestInjection(unittest.TestCase):
         mailfile = open_mailfile('mail_plain.txt')
         mail = mailfile.read()
         mailfile.close()
-        if encoding is not None:
-            mail = safe_unicode(mail)
-        inject.request.stdin = StringIO(mail)
+        mail = safe_bytes(mail, encoding or "utf-8")
+        inject.request.stdin = BytesIO(mail)
         return inject()
 
     def test_permanent_error(self):
