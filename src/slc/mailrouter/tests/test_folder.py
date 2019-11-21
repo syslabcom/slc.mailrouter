@@ -1,15 +1,15 @@
 import unittest
 
-from slc.mailrouter.utils import MailToFolderRouter
+from slc.mailrouter.exceptions import PermissionError
 from slc.mailrouter.testing import (
     MAILROUTER_INTEGRATION_TESTING,
     load_mail,
     msginfo_privileged,
-    msginfo_unprivileged,
     msginfo_unknown,
+    msginfo_unprivileged,
     msginfo_upper_case,
 )
-from slc.mailrouter.exceptions import PermissionError
+from slc.mailrouter.utils import MailToFolderRouter
 
 
 class TestFolderRouter(unittest.TestCase):

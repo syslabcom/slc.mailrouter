@@ -1,7 +1,7 @@
-from zope.component import queryUtility
 import logging
 
 from slc.mailrouter.interfaces import IFriendlyNameStorage
+from zope.component import queryUtility
 
 logger = logging.getLogger(__name__)
 

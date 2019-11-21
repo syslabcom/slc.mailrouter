@@ -1,32 +1,27 @@
 import email
 import sys
-from tempfile import NamedTemporaryFile
 import traceback
-from six import StringIO
 from io import TextIOWrapper
+from logging import getLogger
+from tempfile import NamedTemporaryFile
 
 from Acquisition import aq_inner
-from zope.component import queryUtility, getAllUtilitiesRegisteredFor
-from zope.interface import alsoProvides
+from plone.uuid.interfaces import IUUID
+from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.permissions import AddPortalContent
+from Products.CMFCore.utils import _checkPermission
+from Products.CMFPlone.PloneBatch import Batch
+from Products.CMFPlone.utils import safe_bytes, safe_nativestring
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from Products.CMFPlone.PloneBatch import Batch
-from Products.CMFPlone.utils import safe_bytes
-from Products.CMFPlone.utils import safe_nativestring
 from Products.statusmessages.interfaces import IStatusMessage
-from Products.CMFCore.interfaces import IFolderish
-from Products.CMFCore.utils import _checkPermission
-from Products.CMFCore.permissions import AddPortalContent
-from plone.uuid.interfaces import IUUID
-from slc.mailrouter.interfaces import IFriendlyNameStorage
-from slc.mailrouter.interfaces import IMailRouter
-from slc.mailrouter.exceptions import PermanentError
-from slc.mailrouter.exceptions import PermissionError
-from slc.mailrouter.exceptions import TemporaryError
+from six import StringIO
 from slc.mailrouter import MessageFactory as _
+from slc.mailrouter.exceptions import PermanentError, PermissionError, TemporaryError
+from slc.mailrouter.interfaces import IFriendlyNameStorage, IMailRouter
 from slc.mailrouter.utils import store_name
-
-from logging import getLogger
+from zope.component import getAllUtilitiesRegisteredFor, queryUtility
+from zope.interface import alsoProvides
 
 logger = getLogger("slc.mailrouter.browser")
 
@@ -111,9 +106,7 @@ class FriendlyNameStorageView(BrowserView):
         """ Called from the template, it deletes any mappings
             specified on the request. """
         remove = self.request.get("remove", ())
-        storages = [
-            queryUtility(IFriendlyNameStorage),
-        ]
+        storages = [queryUtility(IFriendlyNameStorage)]
         for item in remove:
             for storage in storages:
                 storage.remove(item)

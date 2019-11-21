@@ -1,23 +1,25 @@
-import re
 import email
+import re
 from copy import copy
-from AccessControl.SecurityManagement import newSecurityManager, getSecurityManager
-from zope.component import getAdapters
-from zope.component import getUtility
-from zope.component import queryUtility
-from zope.interface import implementer
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.interfaces import IFolderish
+from logging import getLogger
+
+from AccessControl.SecurityManagement import getSecurityManager, newSecurityManager
+from plone import api
 from plone.registry.interfaces import IRegistry
 from plone.uuid.interfaces import IUUID
-from plone import api
-from slc.mailrouter.interfaces import IEmailToUser
-from slc.mailrouter.interfaces import IFriendlyNameStorage
-from slc.mailrouter.interfaces import IMailRouter, IMailImportAdapter
-from slc.mailrouter.exceptions import PermissionError, NotFoundError, ConfigurationError
-from slc.mailrouter import MessageFactory as _
-from logging import getLogger
+from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.utils import getToolByName
 from six.moves import range
+from slc.mailrouter import MessageFactory as _
+from slc.mailrouter.exceptions import ConfigurationError, NotFoundError, PermissionError
+from slc.mailrouter.interfaces import (
+    IEmailToUser,
+    IFriendlyNameStorage,
+    IMailImportAdapter,
+    IMailRouter,
+)
+from zope.component import getAdapters, getUtility, queryUtility
+from zope.interface import implementer
 
 # FIXME: async is now a reserved keyword
 try:

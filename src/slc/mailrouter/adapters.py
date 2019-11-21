@@ -1,9 +1,10 @@
 from datetime import datetime
-from zope.component import adapts, queryUtility
+
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.utils import getToolByName
+from zope.component import adapts, queryUtility
 
 
 class FolderAdapter(object):

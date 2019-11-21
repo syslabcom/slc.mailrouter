@@ -1,17 +1,19 @@
-from Products.CMFCore.utils import getToolByName
-from plone import api
-from plone.app.testing import applyProfile
-from plone.app.testing import IntegrationTesting
-from plone.app.testing import PLONE_FIXTURE
-from plone.app.testing import PloneSandboxLayer
-from plone.app.testing.helpers import login, logout
 import email
 import os
+
+from plone import api
+from plone.app.testing import (
+    PLONE_FIXTURE,
+    IntegrationTesting,
+    PloneSandboxLayer,
+    applyProfile,
+)
+from plone.app.testing.helpers import login, logout
 from plone.uuid.interfaces import IUUID
+from Products.CMFCore.utils import getToolByName
+from slc.mailrouter.interfaces import IFriendlyNameStorage
 from zope.component import queryUtility
 from zope.component.hooks import getSiteManager
-
-from slc.mailrouter.interfaces import IFriendlyNameStorage
 
 PRIVILEGED_USER = "allowed@mailrouter.com"
 UNPRIVILEGED_USER = "forbidden@mailrouter.com"
@@ -19,25 +21,16 @@ UNKNOWN_USER = "unknown@mailrouter.com"
 PASSWORD = "password"
 
 
-msginfo_privileged = {
-    "FROM": PRIVILEGED_USER,
-    "FOLDERADDR": "mailtest@mailrouter.com",
-}
+msginfo_privileged = {"FROM": PRIVILEGED_USER, "FOLDERADDR": "mailtest@mailrouter.com"}
 
 msginfo_unprivileged = {
     "FROM": UNPRIVILEGED_USER,
     "FOLDERADDR": "mailtest@mailrouter.com",
 }
 
-msginfo_unknown = {
-    "FROM": UNKNOWN_USER,
-    "FOLDERADDR": "mailtest@mailrouter.com",
-}
+msginfo_unknown = {"FROM": UNKNOWN_USER, "FOLDERADDR": "mailtest@mailrouter.com"}
 
-msginfo_upper_case = {
-    "FROM": PRIVILEGED_USER,
-    "FOLDERADDR": "MAILTEST@mailrouter.com",
-}
+msginfo_upper_case = {"FROM": PRIVILEGED_USER, "FOLDERADDR": "MAILTEST@mailrouter.com"}
 
 
 def load_mail(tmpl_file, msginfo):
@@ -62,18 +55,14 @@ class MailRouterLayer(PloneSandboxLayer):
     def setUpZope(self, app, configurationContext):
         import slc.mailrouter
 
-        self.loadZCML(
-            "configure.zcml", package=slc.mailrouter,
-        )
+        self.loadZCML("configure.zcml", package=slc.mailrouter)
         try:
             import plone.app.contenttypes
         except ImportError:
             self.have_pacontenttypes = False
         else:
             self.have_pacontenttypes = True
-            self.loadZCML(
-                "configure.zcml", package=plone.app.contenttypes,
-            )
+            self.loadZCML("configure.zcml", package=plone.app.contenttypes)
         gsm = getSiteManager()
         from Products.CMFCore.interfaces import IFolderish
         from slc.mailrouter.interfaces import IMailImportAdapter
@@ -85,12 +74,8 @@ class MailRouterLayer(PloneSandboxLayer):
 
     def _createUsers(self, portal):
         acl_users = getToolByName(portal, "acl_users")
-        acl_users.userFolderAddUser(
-            PRIVILEGED_USER, PASSWORD, ["Contributor",], [],
-        )
-        acl_users.userFolderAddUser(
-            UNPRIVILEGED_USER, PASSWORD, [], [],
-        )
+        acl_users.userFolderAddUser(PRIVILEGED_USER, PASSWORD, ["Contributor"], [])
+        acl_users.userFolderAddUser(UNPRIVILEGED_USER, PASSWORD, [], [])
         pm = api.portal.get_tool(name="portal_membership")
         pm.getMemberById(PRIVILEGED_USER).setMemberProperties(
             {"email": PRIVILEGED_USER}

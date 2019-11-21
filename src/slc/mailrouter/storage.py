@@ -1,7 +1,7 @@
-from persistent import Persistent
-from zope.interface import implementer
 from BTrees.OOBTree import OOBTree
+from persistent import Persistent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
+from zope.interface import implementer
 
 
 @implementer(IFriendlyNameStorage)

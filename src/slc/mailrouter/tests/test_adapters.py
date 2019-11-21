@@ -1,13 +1,12 @@
 # coding=utf-8
+import unittest
+
 from plone import api
+from slc.mailrouter.interfaces import IEmailToUser
 from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING
 from slc.mailrouter.utils import get_user_by_email
-from slc.mailrouter.interfaces import IEmailToUser
-from zope.interface import implementer, Interface
-from zope.component import getGlobalSiteManager
-
-from zope.component import adapter
-import unittest
+from zope.component import adapter, getGlobalSiteManager
+from zope.interface import Interface, implementer
 
 
 @implementer(IEmailToUser)

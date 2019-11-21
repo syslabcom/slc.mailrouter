@@ -1,4 +1,5 @@
 import unittest
+
 from slc.mailrouter.storage import FriendlyNameStorage
 
 

@@ -1,20 +1,16 @@
-import six
 import unittest
+from io import BytesIO, StringIO
+from logging import INFO, StreamHandler, getLogger
+
+import six
 from mock import Mock
+from Products.CMFPlone.utils import safe_bytes
+from slc.mailrouter.exceptions import PermanentError
+from slc.mailrouter.interfaces import IMailRouter
+from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING, open_mailfile
 from Testing.makerequest import makerequest
 from zope.component.hooks import getSiteManager
 from zope.publisher.http import HTTPResponse
-from io import BytesIO
-from io import StringIO
-from logging import getLogger, StreamHandler, INFO
-from Products.CMFPlone.utils import safe_bytes
-
-from slc.mailrouter.testing import (
-    MAILROUTER_INTEGRATION_TESTING,
-    open_mailfile,
-)
-from slc.mailrouter.interfaces import IMailRouter
-from slc.mailrouter.exceptions import PermanentError
 
 
 class TestInjection(unittest.TestCase):
