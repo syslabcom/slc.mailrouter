@@ -44,7 +44,7 @@ class FriendlyNameStorage(Persistent):
         return self._reverse.get(uid, _marker)
 
     def __getitem__(self, key):
-        return list(self._forward.items())[key]
+        return self._forward[key]
 
     def __len__(self):
         return len(self._forward)
