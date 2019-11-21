@@ -2,7 +2,7 @@ import email
 import sys
 from tempfile import NamedTemporaryFile
 import traceback
-from StringIO import StringIO
+from six import StringIO
 
 from Acquisition import aq_inner
 from zope.component import queryUtility, getAllUtilitiesRegisteredFor
@@ -48,7 +48,7 @@ class InjectionView(BrowserView):
         # Get all registered mail routers. Sort by priority, then
         # call them until it is handled
         routers = getAllUtilitiesRegisteredFor(IMailRouter)
-        routers.sort(lambda x, y: cmp(x.priority(), y.priority()))
+        routers.sort(key=lambda x: x.priority())
         for router in routers:
             try:
                 if router(aq_inner(self.context), msg):
@@ -60,20 +60,20 @@ class InjectionView(BrowserView):
                     else:
                         alsoProvides(self.request, IDisableCSRFProtection)
                     return 'OK: Message accepted'
-            except PermissionError, e:
+            except PermissionError as e:
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(e.status)
                 logmsg = get_exception_log_entry(e)
                 logger.info(logmsg)
                 return 'Fail: %s' % errmsg
-            except (PermanentError, TemporaryError), e:
+            except (PermanentError, TemporaryError) as e:
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(e.status)
                 logmsg = get_exception_log_entry(e)
                 logger.warn(logmsg)
                 self.dump_mail()
                 return 'Fail: %s' % errmsg
-            except Exception, e:
+            except Exception as e:
                 # raise
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(500, reason=errmsg)
@@ -93,7 +93,7 @@ class InjectionView(BrowserView):
             tmpfile = NamedTemporaryFile(
                 prefix='mailrouter-dump', delete=False)
             self.request.stdin.seek(0)
-            tmpfile.write(self.request.stdin.read())
+            tmpfile.write(self.request.stdin.read().encode("utf-8"))
             logger.info('Dumped mail to %s' % tmpfile.name)
             tmpfile.close()
         except Exception as e:

@@ -6,7 +6,7 @@ from AccessControl.SecurityManagement import newSecurityManager, \
 from zope.component import getAdapters
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.interface import implements
+from zope.interface import implementer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
 from plone.registry.interfaces import IRegistry
@@ -19,8 +19,10 @@ from slc.mailrouter.exceptions import (PermissionError, NotFoundError,
                                        ConfigurationError)
 from slc.mailrouter import MessageFactory as _
 from logging import getLogger
+from six.moves import range
+# FIXME: async is now a reserved keyword
 try:
-    from plone.app.async.interfaces import IAsyncService
+    __import__("plone.app.async.interfaces", "IAsyncService")
 except ImportError:
     pass
 
@@ -93,9 +95,9 @@ class BaseMailRouter(object):
         sender_from = msg.get('From')
         sender_return_path = msg.get('Return-Path')
 
-        sender_from = email.Utils.parseaddr(sender_from)[1]
-        sender_return_path = email.Utils.parseaddr(sender_return_path)[1]
-        recipient = email.Utils.parseaddr(
+        sender_from = email.utils.parseaddr(sender_from)[1]
+        sender_return_path = email.utils.parseaddr(sender_return_path)[1]
+        recipient = email.utils.parseaddr(
             msg.get('X-Original-To', msg.get('To') ))[1]
 
         if not recipient:
@@ -112,8 +114,8 @@ class BaseMailRouter(object):
         return self.deliver(msg, user, recipient)
 
 
+@implementer(IMailRouter)
 class MailToFolderRouter(BaseMailRouter):
-    implements(IMailRouter)
 
     def deliver(self, msg, user, recipient):
         logger.info('MailToFolderRouter called with message %s from %s to %s' %
@@ -173,8 +175,8 @@ class MailToFolderRouter(BaseMailRouter):
         return 50
 
 
+@implementer(IMailRouter)
 class MailToGroupRouter(BaseMailRouter):
-    implements(IMailRouter)
 
     def _findGroup(self, site, recipient):
         local_part = recipient.split('@')[0]
@@ -186,8 +188,7 @@ class MailToGroupRouter(BaseMailRouter):
         group = groups_tool.getGroupById(local_part)
         if not group:
             pat = re.compile('^%s$' % local_part, re.I)  # ignore case
-            candidates = filter(lambda g: pat.match(g),
-                                groups_tool.getGroupIds())
+            candidates = [g for g in groups_tool.getGroupIds() if pat.match(g)]
             if len(candidates) > 1:
                 raise ConfigurationError(
                     'Group name "%s" is not unique' % local_part
@@ -256,12 +257,12 @@ def sendMailToGroup(context, msg, groupid):
     send_batched(context, msg, mto)
 
 
+@implementer(IMailRouter)
 class AsyncMailToGroupRouter(MailToGroupRouter):
-    implements(IMailRouter)
 
     def _sendMailToGroup(self, site, msg, group):
-        async = queryUtility(IAsyncService, default=None, context=self)
-        async.queueJob(sendMailToGroup, site, msg, group.id)
+        async_service = queryUtility(IAsyncService, default=None, context=self)
+        async_service.queueJob(sendMailToGroup, site, msg, group.id)
 
 
 def store_name(context, name):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from subprocess import CalledProcessError
 from subprocess import check_call
 
@@ -20,13 +21,13 @@ if not os.path.exists(pip_path):
            "virtualenv without using the --no-setuptools or --no-pip options.")
     sys.exit(1)
 try:
-    print "Cleaning up from previous bootstrap: {0}".format(bootstrap_clean)
+    print("Cleaning up from previous bootstrap: {0}".format(bootstrap_clean))
     check_call(bootstrap_clean.split(" "))
 except CalledProcessError:
-    print "Ready for bootstrap"
+    print("Ready for bootstrap")
 try:
-    print "Running bootstrap command: {0}".format(bootstrap)
+    print("Running bootstrap command: {0}".format(bootstrap))
     check_call(shlex.split(bootstrap))
-    print "Bootstrap complete"
+    print("Bootstrap complete")
 except CalledProcessError:
-    print "Please try to bootstrap manually using: {0}".format(bootstrap)
+    print("Please try to bootstrap manually using: {0}".format(bootstrap))

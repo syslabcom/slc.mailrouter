@@ -3,7 +3,7 @@ from mock import Mock
 from Testing.makerequest import makerequest
 from zope.component.hooks import getSiteManager
 from zope.publisher.http import HTTPResponse
-from StringIO import StringIO
+from six import StringIO
 from logging import getLogger, StreamHandler, INFO
 from Products.CMFPlone.utils import safe_unicode
 
@@ -46,7 +46,7 @@ class TestInjection(unittest.TestCase):
         mail = mailfile.read()
         mailfile.close()
         if encoding is not None:
-            mail = safe_unicode(mail).encode(encoding)
+            mail = safe_unicode(mail)
         inject.request.stdin = StringIO(mail)
         return inject()
 
