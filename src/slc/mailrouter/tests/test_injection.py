@@ -19,35 +19,34 @@ from slc.mailrouter.exceptions import PermanentError
 
 class TestInjection(unittest.TestCase):
     """ Tests the mail router injection view """
+
     layer = MAILROUTER_INTEGRATION_TESTING
 
     def setUp(self):
-        self.portal = self.layer['portal']
+        self.portal = self.layer["portal"]
         if six.PY2:
             self.log = BytesIO()
         else:
             self.log = StringIO()
-        browser_logger = getLogger('slc.mailrouter.browser')
+        browser_logger = getLogger("slc.mailrouter.browser")
         browser_logger.setLevel(INFO)
         browser_logger.addHandler(StreamHandler(self.log))
 
     def register_error_mail_router(self, error_class):
         sm = getSiteManager()
         MockMailRouter = Mock(
-            return_value=False,
-            side_effect=error_class('An error happened!'))
-        MockMailRouter.getPhysicalPath = Mock(
-            return_value='/plone/mockmailrouter')
+            return_value=False, side_effect=error_class("An error happened!")
+        )
+        MockMailRouter.getPhysicalPath = Mock(return_value="/plone/mockmailrouter")
         sm.registerUtility(
-            name='mockmail',
-            provided=IMailRouter,
-            component=MockMailRouter)
+            name="mockmail", provided=IMailRouter, component=MockMailRouter
+        )
 
     def do_inject(self, encoding=None):
-        inject = self.portal.restrictedTraverse('@@mailrouter-inject')
+        inject = self.portal.restrictedTraverse("@@mailrouter-inject")
         inject.request = makerequest(self.portal)
         inject.request.response = HTTPResponse()
-        mailfile = open_mailfile('mail_plain.txt')
+        mailfile = open_mailfile("mail_plain.txt")
         mail = mailfile.read()
         mailfile.close()
         mail = safe_bytes(mail, encoding or "utf-8")
@@ -59,34 +58,38 @@ class TestInjection(unittest.TestCase):
         result = self.do_inject()
 
         self.log.flush()
-        self.assertTrue(result.startswith("Fail:"),
-                        msg="Inject should have failed but didn't")
-        self.assertTrue('PermanentError' in result)
-        self.assertTrue('Dumped mail' in self.log.getvalue())
+        self.assertTrue(
+            result.startswith("Fail:"), msg="Inject should have failed but didn't"
+        )
+        self.assertTrue("PermanentError" in result)
+        self.assertTrue("Dumped mail" in self.log.getvalue())
 
     def test_key_error(self):
         self.register_error_mail_router(KeyError)
         result = self.do_inject()
 
         self.log.flush()
-        self.assertTrue(result.startswith("Fail:"),
-                        msg="Inject should have failed but didn't")
-        self.assertTrue('KeyError' in result)
-        self.assertTrue('Dumped mail' in self.log.getvalue())
+        self.assertTrue(
+            result.startswith("Fail:"), msg="Inject should have failed but didn't"
+        )
+        self.assertTrue("KeyError" in result)
+        self.assertTrue("Dumped mail" in self.log.getvalue())
 
     def test_not_accepted(self):
         result = self.do_inject()
-        self.assertTrue(result.startswith("FAIL:"),
-                        msg="Inject should have failed but didn't")
-        self.assertTrue('Dumped mail' not in self.log.getvalue())
-        self.assertTrue('not found' in self.log.getvalue())
+        self.assertTrue(
+            result.startswith("FAIL:"), msg="Inject should have failed but didn't"
+        )
+        self.assertTrue("Dumped mail" not in self.log.getvalue())
+        self.assertTrue("not found" in self.log.getvalue())
 
     def test_iso_8859_11_encoding_permanent_error(self):
         self.register_error_mail_router(PermanentError)
-        result = self.do_inject(encoding='iso-8859-11')
+        result = self.do_inject(encoding="iso-8859-11")
 
         self.log.flush()
-        self.assertTrue(result.startswith("Fail:"),
-                        msg="Inject should have failed but didn't")
-        self.assertTrue('PermanentError' in result)
-        self.assertTrue('Dumped mail' in self.log.getvalue())
+        self.assertTrue(
+            result.startswith("Fail:"), msg="Inject should have failed but didn't"
+        )
+        self.assertTrue("PermanentError" in result)
+        self.assertTrue("Dumped mail" in self.log.getvalue())

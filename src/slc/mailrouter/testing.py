@@ -19,21 +19,25 @@ UNKNOWN_USER = "unknown@mailrouter.com"
 PASSWORD = "password"
 
 
-msginfo_privileged = {'FROM': PRIVILEGED_USER,
-                      'FOLDERADDR': 'mailtest@mailrouter.com',
-                      }
+msginfo_privileged = {
+    "FROM": PRIVILEGED_USER,
+    "FOLDERADDR": "mailtest@mailrouter.com",
+}
 
-msginfo_unprivileged = {'FROM': UNPRIVILEGED_USER,
-                        'FOLDERADDR': 'mailtest@mailrouter.com',
-                        }
+msginfo_unprivileged = {
+    "FROM": UNPRIVILEGED_USER,
+    "FOLDERADDR": "mailtest@mailrouter.com",
+}
 
-msginfo_unknown = {'FROM': UNKNOWN_USER,
-                   'FOLDERADDR': 'mailtest@mailrouter.com',
-                   }
+msginfo_unknown = {
+    "FROM": UNKNOWN_USER,
+    "FOLDERADDR": "mailtest@mailrouter.com",
+}
 
-msginfo_upper_case = {'FROM': PRIVILEGED_USER,
-                      'FOLDERADDR': 'MAILTEST@mailrouter.com',
-                      }
+msginfo_upper_case = {
+    "FROM": PRIVILEGED_USER,
+    "FOLDERADDR": "MAILTEST@mailrouter.com",
+}
 
 
 def load_mail(tmpl_file, msginfo):
@@ -45,7 +49,7 @@ def load_mail(tmpl_file, msginfo):
 
 
 def open_mailfile(tmpl_file):
-    testfolder = os.path.join(os.path.split(__file__)[0], 'tests')
+    testfolder = os.path.join(os.path.split(__file__)[0], "tests")
     path = os.path.join(testfolder, tmpl_file)
     fd = open(path)
     return fd
@@ -57,9 +61,9 @@ class MailRouterLayer(PloneSandboxLayer):
 
     def setUpZope(self, app, configurationContext):
         import slc.mailrouter
+
         self.loadZCML(
-            'configure.zcml',
-            package=slc.mailrouter,
+            "configure.zcml", package=slc.mailrouter,
         )
         try:
             import plone.app.contenttypes
@@ -68,53 +72,50 @@ class MailRouterLayer(PloneSandboxLayer):
         else:
             self.have_pacontenttypes = True
             self.loadZCML(
-                'configure.zcml',
-                package=plone.app.contenttypes,
+                "configure.zcml", package=plone.app.contenttypes,
             )
         gsm = getSiteManager()
         from Products.CMFCore.interfaces import IFolderish
         from slc.mailrouter.interfaces import IMailImportAdapter
         from slc.mailrouter.adapters import FolderAdapter
+
         gsm.registerAdapter(
-            FolderAdapter,
-            required=(IFolderish, ),
-            provided=IMailImportAdapter)
+            FolderAdapter, required=(IFolderish,), provided=IMailImportAdapter
+        )
 
     def _createUsers(self, portal):
-        acl_users = getToolByName(portal, 'acl_users')
+        acl_users = getToolByName(portal, "acl_users")
         acl_users.userFolderAddUser(
-            PRIVILEGED_USER,
-            PASSWORD,
-            ['Contributor', ],
-            [],
+            PRIVILEGED_USER, PASSWORD, ["Contributor",], [],
         )
         acl_users.userFolderAddUser(
-            UNPRIVILEGED_USER,
-            PASSWORD,
-            [],
-            [],
+            UNPRIVILEGED_USER, PASSWORD, [], [],
         )
-        pm = api.portal.get_tool(name='portal_membership')
+        pm = api.portal.get_tool(name="portal_membership")
         pm.getMemberById(PRIVILEGED_USER).setMemberProperties(
-            {'email': PRIVILEGED_USER})
+            {"email": PRIVILEGED_USER}
+        )
         pm.getMemberById(UNPRIVILEGED_USER).setMemberProperties(
-            {'email': UNPRIVILEGED_USER})
+            {"email": UNPRIVILEGED_USER}
+        )
 
     def _createContent(self, portal):
         login(portal, PRIVILEGED_USER)
-        portal.invokeFactory('Folder', 'mailtest')
+        portal.invokeFactory("Folder", "mailtest")
         storage = queryUtility(IFriendlyNameStorage)
-        target = IUUID(portal.get('mailtest'))
-        storage.add(target, 'mailtest')
+        target = IUUID(portal.get("mailtest"))
+        storage.add(target, "mailtest")
         logout
 
     def setUpPloneSite(self, portal):
-        applyProfile(portal, 'slc.mailrouter:default')
+        applyProfile(portal, "slc.mailrouter:default")
         if self.have_pacontenttypes:
-            applyProfile(portal, 'plone.app.contenttypes:default')
+            applyProfile(portal, "plone.app.contenttypes:default")
         self._createUsers(portal)
         self._createContent(portal)
 
+
 MAILROUTER_FIXTURE = MailRouterLayer()
 MAILROUTER_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(MAILROUTER_FIXTURE, ), name="SlcMailrouter:Integration")
+    bases=(MAILROUTER_FIXTURE,), name="SlcMailrouter:Integration"
+)

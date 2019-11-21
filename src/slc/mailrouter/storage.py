@@ -6,7 +6,6 @@ from slc.mailrouter.interfaces import IFriendlyNameStorage
 
 @implementer(IFriendlyNameStorage)
 class FriendlyNameStorage(Persistent):
-
     def __init__(self):
         self._forward = OOBTree()  # name -> uid
         self._reverse = OOBTree()  # uid -> name
@@ -27,9 +26,9 @@ class FriendlyNameStorage(Persistent):
         marker = object()
         name = self._reverse.get(uid, marker)
         if name is not marker:
-            del(self._reverse[uid])
+            del self._reverse[uid]
             try:
-                del(self._forward[name])
+                del self._forward[name]
             except KeyError:
                 # If it isn't there, good, that is the outcome we wanted,
                 # right?

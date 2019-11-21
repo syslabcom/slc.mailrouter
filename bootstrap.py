@@ -17,8 +17,10 @@ bootstrap = (
 ).format(pip_path, out_path)
 
 if not os.path.exists(pip_path):
-    print ("pip is not installed in your virtualenv. Reinstall your "
-           "virtualenv without using the --no-setuptools or --no-pip options.")
+    print(
+        "pip is not installed in your virtualenv. Reinstall your "
+        "virtualenv without using the --no-setuptools or --no-pip options."
+    )
     sys.exit(1)
 try:
     print("Cleaning up from previous bootstrap: {0}".format(bootstrap_clean))
