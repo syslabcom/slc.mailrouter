@@ -7,11 +7,11 @@ from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from zope.component import adapts, queryUtility
+from zope.component import adapter, queryUtility
 
 
+@adapter(IFolderish)
 class FolderAdapter(object):
-    adapts(IFolderish)
 
     def __init__(self, context):
         self.context = context
