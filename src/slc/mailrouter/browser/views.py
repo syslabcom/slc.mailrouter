@@ -1,5 +1,4 @@
 import email
-import six
 import sys
 import traceback
 from io import TextIOWrapper
@@ -12,6 +11,7 @@ from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
 from Products.CMFCore.utils import _checkPermission
 from Products.CMFPlone.PloneBatch import Batch
+from Products.CMFPlone.utils import safe_nativestring
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
@@ -22,23 +22,6 @@ from slc.mailrouter.interfaces import IFriendlyNameStorage, IMailRouter
 from slc.mailrouter.utils import store_name
 from zope.component import getAllUtilitiesRegisteredFor, queryUtility
 from zope.interface import alsoProvides
-
-try:
-    from Products.CMFPlone.utils import safe_nativestring
-except ImportError:
-
-    def safe_nativestring(value, encoding="utf-8"):
-        """Convert a value to str in py2 and to text in py3
-        """
-        if six.PY2 and isinstance(value, six.text_type):
-            value = value.encode(encoding)
-        if not six.PY2 and isinstance(value, six.binary_type):
-            try:
-                value = str(value, encoding)
-            except (UnicodeDecodeError):
-                value = value.decode("utf-8", "replace")
-        return value
-
 
 logger = getLogger("slc.mailrouter.browser")
 
