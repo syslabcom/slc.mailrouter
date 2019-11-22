@@ -1,9 +1,12 @@
 from datetime import datetime
 
+from plone import api
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
+from plone.namedfile.file import NamedBlobFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from zope.component import adapts, queryUtility
 
 
@@ -41,12 +44,17 @@ class FolderAdapter(object):
                 parts[0] += datetime.now().strftime("-%Y-%m-%d-%H-%M-%S")
                 name = ".".join(parts)
 
-            self.context.invokeFactory(type_name, name)
-            obj = self.context._getOb(name)
+            obj = api.content.create(
+                title=name,
+                type=type_name,
+                container=self.context,
+                file=NamedBlobFile(
+                    data=payload,
+                    filename=safe_unicode(name),
+                ),
+            )
             info = IPrimaryFieldInfo(obj, None)
-            if info is not None:
-                info.field.set(obj, payload)
-            else:
+            if info is None:
                 if hasattr(obj, "getPrimaryField"):
                     obj.getPrimaryField().getMutator(obj)(payload)
                 else:
