@@ -4,7 +4,6 @@ from logging import INFO, StreamHandler, getLogger
 
 import six
 from mock import Mock
-from Products.CMFPlone.utils import safe_encode
 from slc.mailrouter.exceptions import PermanentError
 from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING, open_mailfile
@@ -45,7 +44,9 @@ class TestInjection(unittest.TestCase):
         mailfile = open_mailfile("mail_plain.txt")
         mail = mailfile.read()
         mailfile.close()
-        mail = safe_encode(mail, encoding or "utf-8")
+        if six.PY2:
+            mail = mail.decode("utf-8")
+        mail = mail.encode(encoding or "utf-8")
         inject.request.stdin = BytesIO(mail)
         return inject()
 

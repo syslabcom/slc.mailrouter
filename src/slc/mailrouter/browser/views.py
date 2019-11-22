@@ -11,7 +11,7 @@ from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
 from Products.CMFCore.utils import _checkPermission
 from Products.CMFPlone.PloneBatch import Batch
-from Products.CMFPlone.utils import safe_encode, safe_nativestring
+from Products.CMFPlone.utils import safe_nativestring
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
@@ -94,7 +94,7 @@ class InjectionView(BrowserView):
         try:
             tmpfile = NamedTemporaryFile(prefix="mailrouter-dump", delete=False)
             self.request.stdin.seek(0)
-            tmpfile.write(safe_encode(self.request.stdin.read()))
+            tmpfile.write(self.request.stdin.read())
             logger.info("Dumped mail to %s" % tmpfile.name)
             tmpfile.close()
         except Exception as e:
