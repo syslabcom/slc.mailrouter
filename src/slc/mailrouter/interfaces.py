@@ -1,6 +1,5 @@
 # coding=utf-8
-from zope.interface import Attribute
-from zope.interface import Interface
+from zope.interface import Attribute, Interface
 
 
 class IMailRouterLayer(Interface):
@@ -56,6 +55,7 @@ class IMailRouter(Interface):
 class IEmailToUser(Interface):
     """ An adapter that resolves a user object given an email address
     """
+
     order = Attribute(
         "Used to declare the priority with which the adapter its executed"
     )

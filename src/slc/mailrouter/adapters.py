@@ -1,18 +1,22 @@
 from datetime import datetime
-from zope.component import adapts, queryUtility
+
+from plone import api
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
+from plone.namedfile.file import NamedBlobFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
+from zope.component import adapter, queryUtility
 
 
+@adapter(IFolderish)
 class FolderAdapter(object):
-    adapts(IFolderish)
 
     def __init__(self, context):
         self.context = context
         self.normalizer = queryUtility(IFileNameNormalizer)
-        self.registry = getToolByName(context, 'content_type_registry')
+        self.registry = getToolByName(context, "content_type_registry")
 
     def add(self, message):
         # Extract the various parts
@@ -29,30 +33,32 @@ class FolderAdapter(object):
 
             content_type = part.get_content_type()
             payload = part.get_payload(decode=1)
-            type_name = self.registry.findTypeName(
-                file_name,
-                content_type,
-                payload)
+            type_name = self.registry.findTypeName(file_name, content_type, payload)
 
             # Normalise file_name into a safe id
             name = self.normalizer.normalize(file_name)
 
             # Check that the name is safe to use, else add a date to it
             if name in self.context.objectIds():
-                parts = name.split('.')
-                parts[0] += datetime.now().strftime('-%Y-%m-%d-%H-%M-%S')
-                name = '.'.join(parts)
+                parts = name.split(".")
+                parts[0] += datetime.now().strftime("-%Y-%m-%d-%H-%M-%S")
+                name = ".".join(parts)
 
-            self.context.invokeFactory(type_name, name)
-            obj = self.context._getOb(name)
+            obj = api.content.create(
+                title=name,
+                type=type_name,
+                container=self.context,
+                file=NamedBlobFile(
+                    data=payload,
+                    filename=safe_unicode(name),
+                ),
+            )
             info = IPrimaryFieldInfo(obj, None)
-            if info is not None:
-                info.field.set(obj, payload)
-            else:
-                if hasattr(obj, 'getPrimaryField'):
+            if info is None:
+                if hasattr(obj, "getPrimaryField"):
                     obj.getPrimaryField().getMutator(obj)(payload)
                 else:
-                    raise AttributeError('Could not get primary field')
+                    raise AttributeError("Could not get primary field")
             obj.setTitle(file_name)
-            obj.reindexObject(idxs='Title')
+            obj.reindexObject(idxs="Title")
             return True

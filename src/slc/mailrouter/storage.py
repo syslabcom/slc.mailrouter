@@ -1,12 +1,11 @@
-from persistent import Persistent
-from zope.interface import implements
 from BTrees.OOBTree import OOBTree
+from persistent import Persistent
 from slc.mailrouter.interfaces import IFriendlyNameStorage
+from zope.interface import implementer
 
 
+@implementer(IFriendlyNameStorage)
 class FriendlyNameStorage(Persistent):
-    implements(IFriendlyNameStorage)
-
     def __init__(self):
         self._forward = OOBTree()  # name -> uid
         self._reverse = OOBTree()  # uid -> name
@@ -27,9 +26,9 @@ class FriendlyNameStorage(Persistent):
         marker = object()
         name = self._reverse.get(uid, marker)
         if name is not marker:
-            del(self._reverse[uid])
+            del self._reverse[uid]
             try:
-                del(self._forward[name])
+                del self._forward[name]
             except KeyError:
                 # If it isn't there, good, that is the outcome we wanted,
                 # right?
@@ -44,7 +43,7 @@ class FriendlyNameStorage(Persistent):
         return self._reverse.get(uid, _marker)
 
     def __getitem__(self, key):
-        return self._forward.items()[key]
+        return list(self._forward.items())[key]
 
     def __len__(self):
         return len(self._forward)
