@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.1.2 (unreleased)
+3.0.0 (2020-01-24)
 ------------------
 
 - Plone5.2 / Python 3 compatibility
