@@ -5,6 +5,8 @@
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="slc.mailrouter">
 
+    <include package="Products.CMFPlone" />
+
     <genericsetup:registerProfile
         name="default"
         title="slc.mailrouter"
