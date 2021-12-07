@@ -44,8 +44,8 @@ def get_exception_log_entry(e):
 class InjectionView(BrowserView):
     def __call__(self):
         self.request.stdin.seek(0)
-        stream = TextIOWrapper(self.request.stdin, encoding="utf-8")
-        msg = email.message_from_file(stream)
+        with TextIOWrapper(self.request.stdin, encoding="utf-8") as stream:
+            msg = email.message_from_file(stream)
 
         # Get all registered mail routers. Sort by priority, then
         # call them until it is handled
@@ -71,7 +71,7 @@ class InjectionView(BrowserView):
                 errmsg = get_exception_message(e)
                 self.request.response.setStatus(e.status)
                 logmsg = get_exception_log_entry(e)
-                logger.warn(logmsg)
+                logger.warning(logmsg)
                 self.dump_mail()
                 return "Fail: %s" % errmsg
             except Exception as e:
@@ -85,7 +85,7 @@ class InjectionView(BrowserView):
 
         self.request.response.setStatus(404)
         recipient = safe_nativestring(msg.get("X-Original-To"))
-        logger.warn("FAIL: Recipient address X-Original-To: %s not found" % (recipient))
+        logger.warning("FAIL: Recipient address X-Original-To: %s not found" % (recipient))
         return "FAIL: Recipient address X-Original-To: %s not found" % (
             msg.get("X-Original-To")
         )
@@ -98,7 +98,7 @@ class InjectionView(BrowserView):
             logger.info("Dumped mail to %s" % tmpfile.name)
             tmpfile.close()
         except Exception as e:
-            logger.warn("Error while dumping mail: %s" % get_exception_log_entry(e))
+            logger.warning("Error while dumping mail: %s" % get_exception_log_entry(e))
 
 
 class FriendlyNameStorageView(BrowserView):
