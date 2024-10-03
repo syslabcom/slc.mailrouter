@@ -4,7 +4,8 @@ Changelog
 3.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove warnings (#10)
+  [gyst]
 
 
 3.0.1 (2020-07-08)
