@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <componentregistry>
- <adapters/>
- <utilities>
-  <utility
-     interface="slc.mailrouter.interfaces.IFriendlyNameStorage"
-     factory="slc.mailrouter.storage.FriendlyNameStorage" 
-     remote="True" />
- </utilities>
+  <adapters />
+  <utilities>
+    <utility factory="slc.mailrouter.storage.FriendlyNameStorage"
+             interface="slc.mailrouter.interfaces.IFriendlyNameStorage"
+             remote="True"
+    />
+  </utilities>
 </componentregistry>

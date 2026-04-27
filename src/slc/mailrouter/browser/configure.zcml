@@ -2,28 +2,29 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:zcml="http://namespaces.zope.org/zcml"
-    i18n_domain="slc.mailrouter">
+    i18n_domain="slc.mailrouter"
+    >
 
-    <browser:page
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        name="mailrouter-inject"
-        class=".views.InjectionView"
-        permission="zope2.View" 
-        />
+  <browser:page
+      name="mailrouter-inject"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".views.InjectionView"
+      permission="zope2.View"
+      />
 
-    <browser:page
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        name="manage-mailrouter"
-        class=".views.FriendlyNameStorageView"
-        template="list.pt"
-        permission="cmf.ManagePortal"
-        />
+  <browser:page
+      name="manage-mailrouter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".views.FriendlyNameStorageView"
+      template="list.pt"
+      permission="cmf.ManagePortal"
+      />
 
-    <browser:page
-        for="Products.CMFCore.interfaces.IFolderish"
-        name="add-mailroute"
-        class=".views.FriendlyNameAddView"
-        permission="cmf.ManagePortal"
-        />
+  <browser:page
+      name="add-mailroute"
+      for="Products.CMFCore.interfaces.IFolderish"
+      class=".views.FriendlyNameAddView"
+      permission="cmf.ManagePortal"
+      />
 
 </configure>

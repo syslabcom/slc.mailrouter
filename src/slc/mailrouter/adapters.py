@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from plone import api
 from plone.i18n.normalizer.interfaces import IFileNameNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -7,11 +6,12 @@ from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from zope.component import adapter, queryUtility
+from zope.component import adapter
+from zope.component import queryUtility
 
 
 @adapter(IFolderish)
-class FolderAdapter(object):
+class FolderAdapter:
 
     def __init__(self, context):
         self.context = context

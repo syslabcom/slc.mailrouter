@@ -1,106 +1,89 @@
-Changelog
-=========
+# Changelog
 
-3.0.3 (unreleased)
-------------------
+## 3.0.3 (unreleased)
 
 - Nothing changed yet.
 
 
-3.0.2 (2024-10-03)
-------------------
+## 3.0.2 (2024-10-03)
 
 - Remove warnings (#10)
   [gyst]
 
 
-3.0.1 (2020-07-08)
-------------------
+## 3.0.1 (2020-07-08)
 
 - Fix autoinclude (#7)
 
 
-3.0.0 (2020-01-24)
-------------------
+## 3.0.0 (2020-01-24)
 
 - Plone5.2 / Python 3 compatibility
 
 
-2.1.1 (2019-08-13)
-------------------
+## 2.1.1 (2019-08-13)
 
 - Default `To` address if X-Original-To is not given [b4oshany]
 
 
-2.1.0 (2019-06-06)
-------------------
+## 2.1.0 (2019-06-06)
 
-Added:
+### Added
 
 - The `get_user_by_email` utility function now can now be customized through
   adapters (Refs #2). [ale-rt]
 
 
-2.0.6 (2017-07-14)
-------------------
+## 2.0.6 (2017-07-14)
 
 - Log PermissionError as info. This is usually not something requiring the
   admin's attention. Refs #15490
   [reinhardt]
 
 
-2.0.5 (2016-12-16)
-------------------
+## 2.0.5 (2016-12-16)
 
 - Manifest fix [reinhardt]
 
 
-2.0.4 (2016-12-16)
-------------------
+## 2.0.4 (2016-12-16)
 
 - Tweaked markup to work better with quaive styling [reinhardt]
 
 
-2.0.3 (2016-07-18)
-------------------
+## 2.0.3 (2016-07-18)
 
 - Don't resolve admin emergency user if no email is given
 
 
-2.0.2 (2016-07-08)
-------------------
+## 2.0.2 (2016-07-08)
 
 - Nothing changed yet.
 
 
-2.0.1 (2016-06-28)
-------------------
+## 2.0.1 (2016-06-28)
 
 - Refactor storing the friendly name so it can be called independently from
   the view
   [pilz]
 
 
-2.0 (2016-06-28)
-----------------
+## 2.0 (2016-06-28)
 
 - pypi release
 
 
-1.10.7 (2013-07-23)
--------------------
+## 1.10.7 (2013-07-23)
 
 - made local_part case insensitive, refs #7976 [reinhardt]
 
 
-1.10.6 (2013-04-29)
--------------------
+## 1.10.6 (2013-04-29)
 
 - safer dump_mail [reinhardt]
 
 
-1.10.5 (2013-04-25)
--------------------
+## 1.10.5 (2013-04-25)
 
 - don't include routers.zcml by default, but load it in the test layer
   [reinhardt]
@@ -108,93 +91,79 @@ Added:
 - don't log until we're sure we have a group [reinhardt]
 
 
-1.10.4 (2013-03-13)
--------------------
+## 1.10.4 (2013-03-13)
 
 - safer way to build error message [reinhardt]
 - more logging, log message id [reinhardt]
 
 
-1.10.3 (2013-01-24)
--------------------
+## 1.10.3 (2013-01-24)
 
 - log outgoing mails [reinhardt]
 
 
-1.10.2 (2012-12-19)
--------------------
+## 1.10.2 (2012-12-19)
 
 - _send() expects message as string [reinhardt]
 
 
-1.10.1 (2012-12-19)
--------------------
+## 1.10.1 (2012-12-19)
 
 - use _send() to leave headers intact [reinhardt]
 
 
-1.10 (2012-12-19)
------------------
+## 1.10 (2012-12-19)
 
 - collected common code in BaseMailRouter, fixed getting sender and recipient,
   send mails in batches of 50 [reinhardt]
 
 
-1.9.1 (2012-11-27)
-------------------
+## 1.9.1 (2012-11-27)
 
 - fixed another instance of the MailHost.send() bug [reinhardt]
 
 
-1.9 (2012-10-05)
-----------------
+## 1.9 (2012-10-05)
 
 - no need to call MailHost.send() for each recipient [reinhardt]
 
 
-1.7 (2012-10-04)
-----------------
+## 1.7 (2012-10-04)
 
 - added optional group router with async support [reinhardt]
 - fix typo in readme [isburger]
 
 
-1.6 (2012-08-27)
-----------------
+## 1.6 (2012-08-27)
 
-- More logging 
+- More logging
 
 
-1.5 (2012-07-26)
-----------------
+## 1.5 (2012-07-26)
 
-- improved logging and error codes/messages, dump mails that produce errors 
+- improved logging and error codes/messages, dump mails that produce errors
   [reinhardt]
-- add-mailrouter: actually show errors instead of just collecting them 
+- add-mailrouter: actually show errors instead of just collecting them
   [reinhardt]
 
 
-1.3 (2012-07-18)
-----------------
+## 1.3 (2012-07-18)
 
 - added basic logging (from and to addresses) [reinhardt]
 - include sender and context (if applicable) in error messages [reinhardt]
 - catch AttributeError in MailToGroupRouter, too [reinhardt]
 
-1.0 (2012-06-06)
-----------------
+## 1.0 (2012-06-06)
 
 - use X-Original-To header if present. Fixes #5117 [reinhardt]
 
 
-0.2.1 (2012-05-15)
-------------------
+## 0.2.1 (2012-05-15)
 
 - assume email == login for folders like for groups [reinhardt]
 
 
-0.2 (2012-05-08)
-----------------
+## 0.2 (2012-05-08)
 
 - fixed permission and getting user [reinhardt]
 - use getMemberById for group mail, too [reinhardt]
@@ -207,7 +176,6 @@ Added:
 - an id for the main div [reinhardt]
 
 
-0.1 (2012-04-03)
-----------------
+## 0.1 (2012-04-03)
 
 - initial release

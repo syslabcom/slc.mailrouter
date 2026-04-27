@@ -11,7 +11,7 @@ class FriendlyNameStorage(Persistent):
         self._reverse = OOBTree()  # uid -> name
 
     def add(self, uid, name):
-        """ Map name -> uid. """
+        """Map name -> uid."""
         store_name = name.lower()
         if store_name in self._forward:
             raise ValueError("%s already mapped" % name)
@@ -21,8 +21,8 @@ class FriendlyNameStorage(Persistent):
         self._reverse[uid] = store_name
 
     def remove(self, uid):
-        """ Remove mapping. This will be called when a folder is deleted,
-            therefore we use the uid. """
+        """Remove mapping. This will be called when a folder is deleted,
+        therefore we use the uid."""
         marker = object()
         name = self._reverse.get(uid, marker)
         if name is not marker:
@@ -35,11 +35,11 @@ class FriendlyNameStorage(Persistent):
                 pass
 
     def get(self, name, _marker=None):
-        """ Look up name, map uid to an object and return it. """
+        """Look up name, map uid to an object and return it."""
         return self._forward.get(name.lower(), _marker)
 
     def lookup(self, uid, _marker=None):
-        """ Look up uid, return name. """
+        """Look up uid, return name."""
         return self._reverse.get(uid, _marker)
 
     def __getitem__(self, key):

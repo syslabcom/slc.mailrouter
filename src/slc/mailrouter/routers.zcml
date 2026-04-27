@@ -1,28 +1,31 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    i18n_domain="slc.mailrouter">
+    i18n_domain="slc.mailrouter"
+    >
 
-    <utility
-        name="mail"
-        provides=".interfaces.IMailRouter"
-        factory=".utils.MailToFolderRouter" />
+  <utility
+      factory=".utils.MailToFolderRouter"
+      provides=".interfaces.IMailRouter"
+      name="mail"
+      />
 
-    <utility
-        name="groupmail"
-        provides=".interfaces.IMailRouter"
-        factory=".utils.MailToGroupRouter" />
+  <utility
+      factory=".utils.MailToGroupRouter"
+      provides=".interfaces.IMailRouter"
+      name="groupmail"
+      />
 
-    <!-- Async variant of group router, remove regular variant when using this
+  <!-- Async variant of group router, remove regular variant when using this
     <utility
         name="groupmail"
         provides=".interfaces.IMailRouter"
         factory=".utils.AsyncMailToGroupRouter" />
     -->
 
-    <adapter
-        for="Products.CMFCore.interfaces.IFolderish"
-        provides="slc.mailrouter.interfaces.IMailImportAdapter"
-        factory=".adapters.FolderAdapter"
-        />
+  <adapter
+      factory=".adapters.FolderAdapter"
+      provides="slc.mailrouter.interfaces.IMailImportAdapter"
+      for="Products.CMFCore.interfaces.IFolderish"
+      />
 
 </configure>

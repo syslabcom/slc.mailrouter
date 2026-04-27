@@ -1,17 +1,17 @@
-# coding=utf-8
-import unittest
-
-from plone import api
 from slc.mailrouter.interfaces import IEmailToUser
 from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING
 from slc.mailrouter.utils import get_user_by_email
-from zope.component import adapter, getGlobalSiteManager
-from zope.interface import Interface, implementer
+from zope.component import adapter
+from zope.component import getGlobalSiteManager
+from zope.interface import implementer
+from zope.interface import Interface
+
+import unittest
 
 
 @implementer(IEmailToUser)
 @adapter(Interface)
-class FooAdapter(object):
+class FooAdapter:
     order = 1
 
     def __init__(self, context):
@@ -22,7 +22,7 @@ class FooAdapter(object):
 
 
 class TestAdapters(unittest.TestCase):
-    """ Tests the mail folder router """
+    """Tests the mail folder router"""
 
     layer = MAILROUTER_INTEGRATION_TESTING
 
@@ -41,7 +41,7 @@ class TestAdapters(unittest.TestCase):
 
         # Check that we can register adapter to override the default behavior
         sm = getGlobalSiteManager()
-        sm.registerAdapter(factory=FooAdapter, name=u"foo")
+        sm.registerAdapter(factory=FooAdapter, name="foo")
         self.assertEqual(get_user_by_email("allowed@mailrouter.com"), 1)
         # Clean up
-        sm.unregisterAdapter(factory=FooAdapter, name=u"foo")
+        sm.unregisterAdapter(factory=FooAdapter, name="foo")
