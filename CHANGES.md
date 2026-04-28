@@ -1,5 +1,20 @@
 # Changelog
 
+<!-- towncrier release notes start -->
+
+## 4.0.0a1 (2026-04-28)
+
+
+### Internal
+
+- Update configuration files @plone
+
+### Breaking
+
+- The package switched to use PEP 420 namespace packages.
+- Support Plone 6+ and Python 3.10+ only.
+
+
 ## 3.0.3 (unreleased)
 
 - Nothing changed yet.
