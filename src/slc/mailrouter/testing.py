@@ -1,19 +1,18 @@
-import email
-import os
-
 from plone import api
-from plone.app.testing import (
-    PLONE_FIXTURE,
-    IntegrationTesting,
-    PloneSandboxLayer,
-    applyProfile,
-)
-from plone.app.testing.helpers import login, logout
+from plone.app.testing import applyProfile
+from plone.app.testing import IntegrationTesting
+from plone.app.testing import PLONE_FIXTURE
+from plone.app.testing import PloneSandboxLayer
+from plone.app.testing.helpers import login
+from plone.app.testing.helpers import logout
 from plone.uuid.interfaces import IUUID
 from Products.CMFCore.utils import getToolByName
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from zope.component import queryUtility
 from zope.component.hooks import getSiteManager
+
+import email
+import os
 
 PRIVILEGED_USER = "allowed@mailrouter.com"
 UNPRIVILEGED_USER = "forbidden@mailrouter.com"
@@ -65,8 +64,8 @@ class MailRouterLayer(PloneSandboxLayer):
             self.loadZCML("configure.zcml", package=plone.app.contenttypes)
         gsm = getSiteManager()
         from Products.CMFCore.interfaces import IFolderish
-        from slc.mailrouter.interfaces import IMailImportAdapter
         from slc.mailrouter.adapters import FolderAdapter
+        from slc.mailrouter.interfaces import IMailImportAdapter
 
         gsm.registerAdapter(
             FolderAdapter, required=(IFolderish,), provided=IMailImportAdapter

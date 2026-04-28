@@ -1,5 +1,10 @@
 recursive-include main_directory *
-recursive-include src *
+recursive-include src *.pt
+recursive-include src *.py
+recursive-include src *.txt
+recursive-include src *.xml
+recursive-include src *.zcml
 recursive-include docs *
+prune news
 include *
 global-exclude *.pyc

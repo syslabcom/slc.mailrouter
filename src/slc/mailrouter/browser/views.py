@@ -1,11 +1,6 @@
-import email
-import sys
-import traceback
-from io import TextIOWrapper
-from logging import getLogger
-from tempfile import NamedTemporaryFile
-
 from Acquisition import aq_inner
+from io import StringIO
+from logging import getLogger
 from plone.uuid.interfaces import IUUID
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.permissions import AddPortalContent
@@ -15,19 +10,27 @@ from Products.CMFPlone.utils import safe_nativestring
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
-from six import StringIO
 from slc.mailrouter import MessageFactory as _
-from slc.mailrouter.exceptions import PermanentError, PermissionError, TemporaryError
-from slc.mailrouter.interfaces import IFriendlyNameStorage, IMailRouter
+from slc.mailrouter.exceptions import PermanentError
+from slc.mailrouter.exceptions import PermissionError
+from slc.mailrouter.exceptions import TemporaryError
+from slc.mailrouter.interfaces import IFriendlyNameStorage
+from slc.mailrouter.interfaces import IMailRouter
 from slc.mailrouter.utils import store_name
-from zope.component import getAllUtilitiesRegisteredFor, queryUtility
+from tempfile import NamedTemporaryFile
+from zope.component import getAllUtilitiesRegisteredFor
+from zope.component import queryUtility
 from zope.interface import alsoProvides
+
+import email
+import sys
+import traceback
 
 logger = getLogger("slc.mailrouter.browser")
 
 
 def get_exception_message(e):
-    return "%s: %s" % (e.__class__.__name__, str(e))
+    return f"{e.__class__.__name__}: {str(e)}"
 
 
 def get_exception_log_entry(e):
@@ -44,7 +47,8 @@ def get_exception_log_entry(e):
 class InjectionView(BrowserView):
     def __call__(self):
         self.request.stdin.seek(0)
-        with TextIOWrapper(self.request.stdin, encoding="utf-8") as stream:
+
+        with StringIO(self.request.stdin.getvalue().decode()) as stream:
             msg = email.message_from_file(stream)
 
         # Get all registered mail routers. Sort by priority, then
@@ -85,7 +89,9 @@ class InjectionView(BrowserView):
 
         self.request.response.setStatus(404)
         recipient = safe_nativestring(msg.get("X-Original-To"))
-        logger.warning("FAIL: Recipient address X-Original-To: %s not found" % (recipient))
+        logger.warning(
+            "FAIL: Recipient address X-Original-To: %s not found" % (recipient)
+        )
         return "FAIL: Recipient address X-Original-To: %s not found" % (
             msg.get("X-Original-To")
         )
@@ -103,8 +109,8 @@ class InjectionView(BrowserView):
 
 class FriendlyNameStorageView(BrowserView):
     def update(self):
-        """ Called from the template, it deletes any mappings
-            specified on the request. """
+        """Called from the template, it deletes any mappings
+        specified on the request."""
         remove = self.request.get("remove", ())
         storages = [queryUtility(IFriendlyNameStorage)]
         for item in remove:
@@ -128,7 +134,7 @@ class FriendlyNameAddView(BrowserView):
 
         self.request["errors"] = errors
         if not errors and "redirect" in self.request:
-            IStatusMessage(self.request).add(_(u"Mail route enabled."))
+            IStatusMessage(self.request).add(_("Mail route enabled."))
             return self.request.RESPONSE.redirect(self.request["redirect"])
         return self.addtemplate()
 

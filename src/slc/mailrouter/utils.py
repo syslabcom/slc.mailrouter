@@ -1,25 +1,27 @@
-import email
-import re
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import newSecurityManager
 from copy import copy
 from logging import getLogger
-
-from AccessControl.SecurityManagement import getSecurityManager, newSecurityManager
 from plone import api
 from plone.registry.interfaces import IRegistry
 from plone.uuid.interfaces import IUUID
 from Products.CMFCore.interfaces import IFolderish
 from Products.CMFCore.utils import getToolByName
-from six.moves import range
 from slc.mailrouter import MessageFactory as _
-from slc.mailrouter.exceptions import ConfigurationError, NotFoundError, PermissionError
-from slc.mailrouter.interfaces import (
-    IEmailToUser,
-    IFriendlyNameStorage,
-    IMailImportAdapter,
-    IMailRouter,
-)
-from zope.component import getAdapters, getUtility, queryUtility
+from slc.mailrouter.exceptions import ConfigurationError
+from slc.mailrouter.exceptions import NotFoundError
+from slc.mailrouter.exceptions import PermissionError
+from slc.mailrouter.interfaces import IEmailToUser
+from slc.mailrouter.interfaces import IFriendlyNameStorage
+from slc.mailrouter.interfaces import IMailImportAdapter
+from slc.mailrouter.interfaces import IMailRouter
+from zope.component import getAdapters
+from zope.component import getUtility
+from zope.component import queryUtility
 from zope.interface import implementer
+
+import email
+import re
 
 # FIXME: async is now a reserved keyword
 try:
@@ -56,7 +58,7 @@ def get_user_by_email(email, pm=None):
     if not email:
         return
 
-    # Try to look for specific adapters that can help us resove a user from the
+    # Try to look for specific adapters that can help us resolve a user from the
     # given email
     adapters = sorted(
         (adapter for name, adapter in getAdapters([api.portal.get()], IEmailToUser)),
@@ -84,7 +86,7 @@ def get_user_by_email(email, pm=None):
     return user
 
 
-class BaseMailRouter(object):
+class BaseMailRouter:
     def __call__(self, site, msg):
         self.site = site
         self.acl_users = getToolByName(site, "acl_users")
@@ -211,7 +213,7 @@ class MailToGroupRouter(BaseMailRouter):
         # Find the group
         group = self._findGroup(self.site, recipient)
         if not group:
-            # recipient not a group, we're not handlig this msg
+            # recipient not a group, we're not handling this msg
             return False
 
         logger.info(
@@ -254,7 +256,9 @@ def sendMailToGroup(context, msg, groupid):
 @implementer(IMailRouter)
 class AsyncMailToGroupRouter(MailToGroupRouter):
     def _sendMailToGroup(self, site, msg, group):
-        async_service = queryUtility(IAsyncService, default=None, context=self)
+        async_service = queryUtility(
+            IAsyncService, default=None, context=self  # noqa: F821
+        )
         async_service.queueJob(sendMailToGroup, site, msg, group.id)
 
 
@@ -263,12 +267,12 @@ def store_name(context, name):
     storage = queryUtility(IFriendlyNameStorage)
     target = IUUID(context)
     if not name:
-        errors.update({"name": _(u"You must provide a friendly name.")})
+        errors.update({"name": _("You must provide a friendly name.")})
     elif not re.match(r"^[a-zA-Z0-9_./-]+$", name):
         errors.update(
             {
                 "name": _(
-                    u"Forbidden characters in friendly name. "
+                    "Forbidden characters in friendly name. "
                     "Allowed characters: a-zA-Z0-9_./-"
                 )
             }
@@ -276,7 +280,7 @@ def store_name(context, name):
     if not errors:
         existing = storage.get(name)
         if existing and not existing == target:
-            errors.update({"name": _(u"This name is already in use.")})
+            errors.update({"name": _("This name is already in use.")})
         else:
             storage.remove(target)  # No effect if target isn't mapped
             storage.add(target, name)

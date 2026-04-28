@@ -1,28 +1,29 @@
-import unittest
-from io import BytesIO, StringIO
-from logging import INFO, StreamHandler, getLogger
-
-import six
-from mock import Mock
+from io import BytesIO
+from io import StringIO
+from logging import getLogger
+from logging import INFO
+from logging import StreamHandler
 from slc.mailrouter.exceptions import PermanentError
 from slc.mailrouter.interfaces import IMailRouter
-from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING, open_mailfile
+from slc.mailrouter.testing import MAILROUTER_INTEGRATION_TESTING
+from slc.mailrouter.testing import open_mailfile
 from Testing.makerequest import makerequest
+from unittest.mock import Mock
 from zope.component.hooks import getSiteManager
 from zope.publisher.http import HTTPResponse
 
+import six
+import unittest
+
 
 class TestInjection(unittest.TestCase):
-    """ Tests the mail router injection view """
+    """Tests the mail router injection view"""
 
     layer = MAILROUTER_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer["portal"]
-        if six.PY2:
-            self.log = BytesIO()
-        else:
-            self.log = StringIO()
+        self.log = StringIO()
         browser_logger = getLogger("slc.mailrouter.browser")
         browser_logger.setLevel(INFO)
         browser_logger.addHandler(StreamHandler(self.log))

@@ -1,7 +1,7 @@
-import logging
-
 from slc.mailrouter.interfaces import IFriendlyNameStorage
 from zope.component import queryUtility
+
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,4 +17,4 @@ def convert_storage_entries_to_lower_case(context):
             storage.remove(entry[1])
             storage.add(entry[1], entry[0].lower())
             count += 1
-    logger.info("Converted {0} of {1} storage entries".format(count, len(storage)))
+    logger.info(f"Converted {count} of {len(storage)} storage entries")
